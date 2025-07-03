@@ -22,25 +22,28 @@
       align-items: center;
       background: linear-gradient(to right, #f769ac, #d60072);
       overflow: hidden;
+      padding: 30px;
+      box-sizing: border-box;
     }
 
     .start-container h1 {
-      font-size: 2.5rem;
+      font-size: 2.8rem;
       margin: 0;
       color: #fff;
+      font-weight: 600;
     }
 
     .subtitle {
-      font-size: 1.5rem;
+      font-size: 2rem;
       font-weight: bold;
       color: #fff;
-      margin-top: 10px;
-      margin-bottom: 30px;
+      margin-top: 15px;
+      margin-bottom: 40px;
     }
 
     .start-button {
-      padding: 15px 30px;
-      font-size: 1.2rem;
+      padding: 18px 36px;
+      font-size: 1.3rem;
       background-color: #ffffff;
       color: #d60072;
       border: none;
@@ -48,11 +51,28 @@
       cursor: pointer;
       text-decoration: none;
       transition: background-color 0.3s ease, color 0.3s ease;
+      font-weight: 600;
     }
 
     .start-button:hover {
       background-color: #fce4ec;
       color: #a00050;
+    }
+
+    @media (max-width: 600px) {
+      .start-container h1 {
+        font-size: 2.2rem;
+      }
+
+      .subtitle {
+        font-size: 1.5rem;
+        margin-bottom: 30px;
+      }
+
+      .start-button {
+        font-size: 1.1rem;
+        padding: 14px 28px;
+      }
     }
   </style>
 </head>
@@ -64,11 +84,11 @@
   </div>
 
   <script>
-    // Read emotion from URL (e.g., ?emotion=Joy)
+    // Read emotion from QR code URL (e.g. ?emotion=Joy)
     const params = new URLSearchParams(window.location.search);
     const emotion = params.get('emotion') || 'Calm';
 
-    // Update start button to go to mood.html with correct emotion
+    // Set correct link to mood.html
     const startLink = document.getElementById('startLink');
     startLink.href = `mood.html?emotion=${encodeURIComponent(emotion)}`;
   </script>
