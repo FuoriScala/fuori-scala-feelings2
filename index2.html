@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Fuori Scala Feelings – Welcome</title>
+  <title>Test – Fuori Scala Feelings</title>
   <link rel="stylesheet" href="style.css" />
   <style>
     html, body {
@@ -36,7 +36,6 @@
       color: #fff;
       margin-top: 10px;
       margin-bottom: 30px;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     .start-button {
@@ -55,36 +54,23 @@
       background-color: #fce4ec;
       color: #a00050;
     }
-
-    @media (max-width: 600px) {
-      .start-container h1 {
-        font-size: 2rem;
-      }
-
-      .subtitle {
-        font-size: 1.2rem;
-      }
-
-      .start-button {
-        font-size: 1rem;
-        padding: 12px 24px;
-      }
-    }
   </style>
 </head>
 <body>
   <div class="start-container">
     <h1>Welcome to</h1>
     <p class="subtitle">Fuori Scala Moodboard</p>
-    <a id="startButton" class="start-button">Start your journey</a>
+    <a id="startLink" class="start-button">Start your journey</a>
   </div>
 
-  <!-- Script che legge l'emozione dall'URL e la passa alla mood.html -->
   <script>
-    const button = document.getElementById('startButton');
+    // Read emotion from URL (e.g., ?emotion=Joy)
     const params = new URLSearchParams(window.location.search);
     const emotion = params.get('emotion') || 'Calm';
-    button.href = `mood.html?emotion=${encodeURIComponent(emotion)}`;
+
+    // Update start button to go to mood.html with correct emotion
+    const startLink = document.getElementById('startLink');
+    startLink.href = `mood.html?emotion=${encodeURIComponent(emotion)}`;
   </script>
 </body>
 </html>
