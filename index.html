@@ -70,13 +70,23 @@
         padding: 12px 24px;
       }
     }
-  </style>
+    </style>
 </head>
 <body>
   <div class="start-container">
     <h1>Welcome to</h1>
     <p class="subtitle">Fuori Scala Moodboard</p>
-    <a href="mood.html" class="start-button">Start your journey</a>
+    <a id="startLink" class="start-button">Start your journey</a>
   </div>
+
+  <script>
+    // Read emotion from QR code URL (e.g. ?emotion=Joy)
+    const params = new URLSearchParams(window.location.search);
+    const emotion = params.get('emotion') || 'Calm';
+
+    // Set correct link to mood.html
+    const startLink = document.getElementById('startLink');
+    startLink.href = `mood.html?emotion=${encodeURIComponent(emotion)}`;
+  </script>
 </body>
 </html>
