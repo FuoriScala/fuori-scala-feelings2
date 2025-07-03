@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Moody Bag</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #fbe4ec;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #c2185b;
+      margin-bottom: 20px;
+    }
+
+    #bagContainer {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 40px;
+    }
+
+    #bagImage {
+      width: 300px;
+      height: auto;
+      border-radius: 10px;
+    }
+
+    #thoughtText {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1rem;
+      color: #ffffff;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+      cursor: move;
+      user-select: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      background: rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+  <h1>Your Moody Bag</h1>
+  <div id="bagContainer">
+    <img id="bagImage" src="" alt="Moody Bag" />
+    <div id="thoughtText" draggable="true">Your thought will appear here</div>
+  </div>
+
+  <script>
+    // Recover emotion and thought from URL
+    const params = new URLSearchParams(window.location.search);
+    const emotion = params.get('emotion') || 'Calm';
+    const thought = decodeURIComponent(params.get('thought') || 'No thought');
+
+    const bagImage = document.getElementById('bagImage');
+    const thoughtText = document.getElementById('thoughtText');
+    thoughtText.textContent = thought;
+
+    // Emotion → bag image mapping
+    const emotionToImage = {
+      Joy: 'images/bag_yellow.png',
+      Sadness: 'images/bag_blue.png',
+      Anger: 'images/bag_red.png',
+      Fear: 'images/bag_black.png',
+      Calm: 'images/bag_green.png',
+      Love: 'images/bag_pink.png'
+    };
+
+    bagImage.src = emotionToImage[emotion] || 'images/bag_default.png';
+
+    // Drag functionality
+    thoughtText.addEventListener('dragstart', function(e) {
+      const rect = thoughtText.getBoundingClientRect();
+      e.dataTransfer.setData('offsetX', e.clientX - rect.left);
+      e.dataTransfer.setData('offsetY', e.clientY - rect.top);
+    });
+
+    const container = document.getElementById('bagContainer');
+    container.addEventListener('dragover', e => e.preventDefault());
+
+    container.addEventListener('drop', function(e) {
+      e.preventDefault();
+      const offsetX = parseInt(e.dataTransfer.getData('offsetX'));
+      const offsetY = parseInt(e.dataTransfer.getData('offsetY'));
+
+      const newX = e.clientX - container.offsetLeft - offsetX;
+      const newY = e.clientY - container.offsetTop - offsetY;
+
+      thoughtText.style.left = `${newX}px`;
+      thoughtText.style.top = `${newY}px`;
+      thoughtText.style.transform = `translate(0, 0)`; // reset center translate
+    });
+  </script>
+</body>
+</html>
