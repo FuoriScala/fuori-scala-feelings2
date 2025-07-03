@@ -1,0 +1,85 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f0f8ff;
+  color: #333;
+  margin: 0;
+  padding: 20px;
+  text-align: center;
+}
+
+h1, h2, h3 {
+  color: #005f99;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Emotion bubble */
+#emotionBubble {
+  width: 150px;
+  height: 150px;
+  margin: 20px auto;
+  border-radius: 50%;
+  background: linear-gradient(270deg, #4facfe, #00f2fe, #4facfe);
+  background-size: 600% 600%;
+  animation: wave 8s ease infinite;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  font-size: 1.2rem;
+  user-select: none;
+}
+
+@keyframes wave {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+form {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+input[type="text"],
+textarea {
+  padding: 10px;
+  border: 2px solid #00aaff;
+  border-radius: 8px;
+  font-size: 1rem;
+  resize: vertical;
+}
+
+button, .button {
+  background-color: #0077cc;
+  color: white;
+  border: none;
+  padding: 12px;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: background-color 0.3s ease;
+}
+
+button:hover, .button:hover {
+  background-color: #005fa3;
+}
+
+#qrSection {
+  margin-top: 20px;
+  display: none;
+  justify-content: center;
+}
+
+#qrSection.visible {
+  display: flex;
+}
