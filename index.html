@@ -6,19 +6,35 @@
   <title>Fuori Scala Feelings – Welcome</title>
   <link rel="stylesheet" href="style.css" />
   <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
     .start-container {
+      height: 100vh;
+      width: 100vw;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      background: linear-gradient(120deg, #f769ac, #ee4dae);
+      background: linear-gradient(120deg, #f769ac, #d60o72);
+      overflow: hidden;
     }
 
     .start-container h1 {
       font-size: 2.5rem;
-      margin-bottom: 20px;
+      margin: 0;
       color: #333;
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      color: #555;
+      margin-top: 10px;
+      margin-bottom: 30px;
     }
 
     .start-button {
@@ -37,17 +53,26 @@
       background-color: #005fa3;
     }
 
-    .subtitle {
-      font-size: 1.1rem;
-      margin-top: 10px;
-      color: #444;
+    @media (max-width: 600px) {
+      .start-container h1 {
+        font-size: 2rem;
+      }
+
+      .subtitle {
+        font-size: 1rem;
+      }
+
+      .start-button {
+        font-size: 1rem;
+        padding: 12px 24px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="start-container">
-    <h1>Welcome to Fuori Scala Moodboard</h1>
-    <p class="subtitle">Explore emotions through colors and thoughts.</p>
+    <h1>Welcome to</h1>
+    <p class="subtitle">Fuori Scala Moodboard</p>
     <a href="mood.html" class="start-button">Start your journey</a>
   </div>
 </body>
