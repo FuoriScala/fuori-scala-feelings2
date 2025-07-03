@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fuori Scala Feelings – Welcome</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .start-container {
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(to right, #f769ac, #d60072);
+      overflow: hidden;
+    }
+
+    .start-container h1 {
+      font-size: 2.5rem;
+      margin: 0;
+      color: #fff;
+    }
+
+    .subtitle {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #fff;
+      margin-top: 10px;
+      margin-bottom: 30px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .start-button {
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      background-color: #ffffff;
+      color: #d60072;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .start-button:hover {
+      background-color: #fce4ec;
+      color: #a00050;
+    }
+
+    @media (max-width: 600px) {
+      .start-container h1 {
+        font-size: 2rem;
+      }
+
+      .subtitle {
+        font-size: 1.2rem;
+      }
+
+      .start-button {
+        font-size: 1rem;
+        padding: 12px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="start-container">
+    <h1>Welcome to</h1>
+    <p class="subtitle">Fuori Scala Moodboard</p>
+    <a id="startButton" class="start-button">Start your journey</a>
+  </div>
+
+  <!-- Script che legge l'emozione dall'URL e la passa alla mood.html -->
+  <script>
+    const button = document.getElementById('startButton');
+    const params = new URLSearchParams(window.location.search);
+    const emotion = params.get('emotion') || 'Calm';
+    button.href = `mood.html?emotion=${encodeURIComponent(emotion)}`;
+  </script>
+</body>
+</html>
