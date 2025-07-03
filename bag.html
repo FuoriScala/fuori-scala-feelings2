@@ -5,30 +5,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Your Moody Bag</title>
   <style>
-    body {
+    html, body {
       margin: 0;
-      padding: 20px;
+      padding: 0;
+      height: 100%;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #fbe4ec;
       text-align: center;
+      background: linear-gradient(-45deg, #fce4ec, #f8bbd0, #fce4ec, #f8bbd0);
+      background-size: 400% 400%;
+      animation: gradientShift 10s ease infinite;
+      color: #333;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     h1 {
-      font-size: 2rem;
+      font-size: 2.5rem;
       color: #c2185b;
-      margin-bottom: 20px;
+      margin-top: 40px;
+      margin-bottom: 30px;
     }
 
     #bagContainer {
       position: relative;
       display: inline-block;
-      margin-bottom: 40px;
+      margin: 0 auto;
+      max-width: 90%;
     }
 
     #bagImage {
-      width: 300px;
+      width: 320px;
+      max-width: 90vw;
       height: auto;
-      border-radius: 10px;
+      border-radius: 16px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
     }
 
     #thoughtText {
@@ -36,27 +50,34 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 1rem;
-      color: #ffffff;
+      font-size: 1.1rem;
       font-weight: bold;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+      color: #ffffff;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px 14px;
+      border-radius: 8px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
       cursor: move;
       user-select: none;
-      padding: 8px 12px;
-      border-radius: 5px;
-      background: rgba(0,0,0,0.2);
+      resize: both;
+      overflow: auto;
+      min-width: 60px;
+      min-height: 30px;
+      max-width: 90%;
     }
   </style>
 </head>
 <body>
+
   <h1>Your Moody Bag</h1>
+
   <div id="bagContainer">
     <img id="bagImage" src="" alt="Moody Bag" />
     <div id="thoughtText" draggable="true">Your thought will appear here</div>
   </div>
 
   <script>
-    // Recover emotion and thought from URL
+    // Get emotion and thought from URL
     const params = new URLSearchParams(window.location.search);
     const emotion = params.get('emotion') || 'Calm';
     const thought = decodeURIComponent(params.get('thought') || 'No thought');
@@ -77,7 +98,7 @@
 
     bagImage.src = emotionToImage[emotion] || 'images/bag_default.png';
 
-    // Drag functionality
+    // Drag logic
     thoughtText.addEventListener('dragstart', function(e) {
       const rect = thoughtText.getBoundingClientRect();
       e.dataTransfer.setData('offsetX', e.clientX - rect.left);
@@ -100,5 +121,6 @@
       thoughtText.style.transform = `translate(0, 0)`; // reset center translate
     });
   </script>
+
 </body>
 </html>
