@@ -1,5 +1,5 @@
 // Replace with your actual SheetDB API endpoint (keep the quotes)
-const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/YOUR_ENDPOINT_HERE';
+const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/m9769bwpvfaga';
 
 const bubble = document.getElementById('emotionBubble');
 const colorSpan = document.getElementById('color');
@@ -79,7 +79,7 @@ function loadData() {
 
   const color = emotionColors[emotion] || '#CCCCCC';
 
-  currentData = { color, emotion, thought: '' };
+ currentData = { color, emotion, thought: '' };
   displayData(currentData);
 }
 
@@ -111,7 +111,6 @@ function generateQR(url) {
   downloadBtn.style.display = 'inline-block';
 }
 
-// Form submit event
 form.addEventListener('submit', (e) => {
   e.preventDefault();
   const name = form.name.value || 'anonymous';
@@ -131,9 +130,8 @@ form.addEventListener('submit', (e) => {
 
   saveData(payload);
 
-  displayData(currentData);
+    displayData(currentData);
 
-  // Generate URL for QR code (can be same page with params)
   const url = `${window.location.origin}${window.location.pathname}?emotion=${encodeURIComponent(currentData.emotion)}&thought=${encodeURIComponent(thought)}&id=${encodeURIComponent(id)}`;
   generateQR(url);
 });
