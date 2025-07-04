@@ -11,7 +11,7 @@
 <body>
   <div class="container">
 
-    <h1>Fuori Scala Feelings</h1>
+    <h1>Fuori Scala</h1>
     <h2>This is your mood today</h2>
 
     <!-- Mood display to capture -->
@@ -33,16 +33,20 @@
       </div>
     </div>
 
-  <!-- Thought form -->
-<form id="saveForm" class="thought-form">
-  <input type="text" name="name" placeholder="Your name (optional)" />
-  <textarea name="thought" placeholder="Write a thought..." rows="4"></textarea>
-  <button type="submit">Save your emotion</button>
-</form>
-    <!-- Download button -->
-    <button id="downloadMoodBtn" style="margin-top: 30px; display: none; padding: 12px 24px; font-size: 1rem; background-color: #ff6f91; color: white; border: none; border-radius: 8px; cursor: pointer;">Download my Mood</button>
+ <!-- Thought form -->
+    <form id="saveForm">
+      <input type="text" name="name" placeholder="Your name (optional)" />
+      <textarea name="thought" placeholder="Write a thought..." rows="4"></textarea>
+      <button type="submit">Save how you felt at work today</button>
+    </form>
+
+    <!-- Download section -->
+    <div id="downloadSection" class="hidden">
+      <p>Your mood has been saved!</p>
+      <button id="downloadBtn">Download your mood snapshot</button>
+    </div>
   </div>
-  
-<script src="script-test.js"></script>
+
+  <script src="script-test.js"></script>
 </body>
 </html>
