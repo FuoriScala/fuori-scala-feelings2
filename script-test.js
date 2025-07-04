@@ -1,12 +1,14 @@
-// Replace with your real SheetDB API if needed
+// Replace with your actual SheetDB API endpoint (keep the quotes)
 const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/m9769bwpvfaga';
 
 const bubble = document.getElementById('emotionBubble');
 const colorSpan = document.getElementById('color');
 const emotionSpan = document.getElementById('emotion');
 const form = document.getElementById('saveForm');
-const downloadBtn = document.getElementById('downloadBtn');
-const downloadSection = document.getElementById('downloadSection');
+const qrSection = document.getElementById('qrSection');
+const qrCanvas = document.getElementById('qrCanvas');
+const downloadBtn = document.getElementById('downloadMoodBtn');
+const userThoughtText = document.getElementById('userThoughtText');
 
 let currentData = {};
 
@@ -18,6 +20,8 @@ function generateId(name) {
 
 function displayData(data) {
   bubble.style.background = `linear-gradient(270deg, ${data.color}, #00f2fe, ${data.color})`;
+  bubble.style.backgroundSize = '600% 600%';
+  bubble.style.animation = 'wave 8s ease infinite';
   bubble.textContent = data.emotion;
 
   colorSpan.textContent = data.color;
@@ -57,6 +61,7 @@ function displayData(data) {
 
   document.getElementById('emotionTitle').textContent = desc.title;
   document.getElementById('emotionText').textContent = desc.text;
+  userThoughtText.textContent = data.thought || 'Your thought here';
 }
 
 function loadData() {
@@ -74,7 +79,7 @@ function loadData() {
 
   const color = emotionColors[emotion] || '#CCCCCC';
 
-  currentData = { color, emotion };
+  currentData = { color, emotion, thought: '' };
   displayData(currentData);
 }
 
@@ -83,26 +88,37 @@ function saveData(data) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ data }),
-  }).catch(error => {
-    console.error('Error:', error);
-  });
+  })
+    .then(response => {
+      if (!response.ok) throw new Error('Save error');
+      return response.json();
+    })
+    .then(json => {
+      console.log('Data saved:', json);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
 }
 
-// 📸 Download snapshot as image
-function downloadMoodSnapshot() {
-  html2canvas(document.querySelector('.container')).then(canvas => {
-    const link = document.createElement('a');
-    link.download = 'my_workday_mood.png';
-    link.href = canvas.toDataURL();
-    link.click();
+function generateQR(url) {
+  const qr = new QRious({
+    element: qrCanvas,
+    value: url,
+    size: 200,
   });
+  qrSection.style.display = 'flex';
+  downloadBtn.style.display = 'inline-block';
 }
 
+// Form submit event
 form.addEventListener('submit', (e) => {
   e.preventDefault();
   const name = form.name.value || 'anonymous';
   const thought = form.thought.value || '';
   const id = generateId(name);
+
+  currentData.thought = thought;
 
   const payload = {
     timestamp: new Date().toISOString(),
@@ -115,9 +131,17 @@ form.addEventListener('submit', (e) => {
 
   saveData(payload);
 
-  downloadSection.classList.remove('hidden');
-});
+  displayData(currentData);
 
-downloadBtn.addEventListener('click', downloadMoodSnapshot);
+// Download button event
+downloadBtn.addEventListener('click', () => {
+  const moodSection = document.getElementById('moodCapture');
+  html2canvas(moodSection).then(canvas => {
+    const link = document.createElement('a');
+    link.download = 'my_mood.png';
+    link.href = canvas.toDataURL();
+    link.click();
+  });
+});
 
 loadData();
