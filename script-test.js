@@ -18,15 +18,6 @@ function generateId(name) {
   return `${cleanName}_${date}`;
 }
 
-function displayData(data) {
-  bubble.style.background = `linear-gradient(270deg, ${data.color}, #00f2fe, ${data.color})`;
-  bubble.style.backgroundSize = '600% 600%';
-  bubble.style.animation = 'wave 8s ease infinite';
-  bubble.textContent = data.emotion;
-
-  colorSpan.textContent = data.color;
-  emotionSpan.textContent = data.emotion;
-
   const descriptions = {
     'Joy': {
       title: 'Yellow – Joy',
