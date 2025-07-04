@@ -1,67 +1,22 @@
-// Replace with your actual SheetDB API endpoint (keep the quotes)
-const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/m9769bwpvfaga';
+// Replace with your SheetDB API endpoint
+const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/YOUR_REAL_ENDPOINT';
 
+// Elements
 const bubble = document.getElementById('emotionBubble');
 const colorSpan = document.getElementById('color');
 const emotionSpan = document.getElementById('emotion');
 const form = document.getElementById('saveForm');
-const qrSection = document.getElementById('qrSection');
-const qrCanvas = document.getElementById('qrCanvas');
-const downloadBtn = document.getElementById('downloadMoodBtn');
-const userThoughtText = document.getElementById('userThoughtText');
+const canvasDownload = document.getElementById('downloadCanvas');
+const downloadBtn = document.getElementById('downloadButton');
 
 let currentData = {};
 
-function generateId(name) {
-  const date = new Date().toISOString().replace(/[-:.]/g, '');
-  const cleanName = name ? name.trim().toLowerCase().replace(/\s+/g, '_') : 'anonymous';
-  return `${cleanName}_${date}`;
-}
-
 function displayData(data) {
-bubble.style.background = `linear-gradient(270deg, ${data.color}, #00f2fe, ${data.color})`;
-bubble.style.backgroundSize = '600% 600%';
-bubble.style.animation = 'wave 8s ease infinite';
+  bubble.style.background = `linear-gradient(270deg, ${data.color}, #00f2fe, ${data.color})`;
   bubble.textContent = data.emotion;
 
   colorSpan.textContent = data.color;
   emotionSpan.textContent = data.emotion;
-
-  const descriptions = {
-    'Joy': {
-      title: 'Yellow – Joy',
-      text: 'Bright, sunny, energizing. Sparks creativity and cheerfulness.'
-    },
-    'Sadness': {
-      title: 'Blue – Sadness',
-      text: 'Deep, calm, introspective. Invites reflection and melancholy.'
-    },
-    'Anger': {
-      title: 'Red – Anger',
-      text: 'Intense, passionate, powerful. Fire-like and impulsive.'
-    },
-    'Fear': {
-      title: 'Black – Fear',
-      text: 'Dark, mysterious, protective. Linked to uncertainty and the unknown.'
-    },
-    'Calm': {
-      title: 'Green – Calm',
-      text: 'Natural, relaxing, balanced. A symbol of peace and renewal.'
-    },
-    'Love': {
-      title: 'Pink – Love',
-      text: 'Sweet, welcoming, emotional. Represents affection and tenderness.'
-    }
-  };
-
-  const desc = descriptions[data.emotion] || {
-    title: 'Unknown emotion',
-    text: 'No description available.'
-  };
-
-  document.getElementById('emotionTitle').textContent = desc.title;
-  document.getElementById('emotionText').textContent = desc.text;
-  userThoughtText.textContent = data.thought || 'Your thought here';
 }
 
 function loadData() {
@@ -79,11 +34,12 @@ function loadData() {
 
   const color = emotionColors[emotion] || '#CCCCCC';
 
-  currentData = { color, emotion, thought: '' };
+  currentData = { color, emotion };
   displayData(currentData);
 }
 
-function saveData(data) {
+// Save to SheetDB
+function saveDataToSheetDB(data) {
   fetch(SHEETDB_API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -94,59 +50,71 @@ function saveData(data) {
       return response.json();
     })
     .then(json => {
-      console.log('Data saved:', json);
+      console.log('Saved to SheetDB:', json);
     })
     .catch(error => {
-      console.error('Error:', error);
+      console.error('Error saving to SheetDB:', error);
     });
 }
 
-function generateQR(url) {
-  const qr = new QRious({
-    element: qrCanvas,
-    value: url,
-    size: 200,
-  });
-  qrSection.style.display = 'flex';
-  downloadBtn.style.display = 'inline-block';
+// Generate PNG and download
+async function generateAndDownloadMood(name, thought, emotion, color) {
+  const canvas = canvasDownload;
+  const ctx = canvas.getContext('2d');
+  const width = canvas.width = 600;
+  const height = canvas.height = 400;
+
+  // Background gradient
+  const gradient = ctx.createLinearGradient(0, 0, width, height);
+  gradient.addColorStop(0, color);
+  gradient.addColorStop(1, '#ffffff');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+
+  // Emotion title
+  ctx.fillStyle = '#000000';
+  ctx.font = 'bold 30px Segoe UI';
+  ctx.fillText(`Emotion: ${emotion}`, 30, 80);
+
+  // Thought text
+  ctx.font = '20px Segoe UI';
+  ctx.fillText(`"${thought}"`, 30, 140);
+
+  // Name
+  if (name && name !== 'anonymous') {
+    ctx.font = 'italic 16px Segoe UI';
+    ctx.fillText(`— ${name}`, 30, 180);
+  }
+
+  // Download
+  const link = document.createElement('a');
+  link.download = `mood-${emotion.toLowerCase()}.png`;
+  link.href = canvas.toDataURL();
+  link.click();
 }
 
-// Form submit event
-form.addEventListener('submit', (e) => {
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
+
   const name = form.name.value || 'anonymous';
   const thought = form.thought.value || '';
-  const id = generateId(name);
-
-  currentData.thought = thought;
+  const emotion = currentData.emotion;
+  const color = currentData.color;
+  const timestamp = new Date().toISOString();
 
   const payload = {
-    timestamp: new Date().toISOString(),
-    color: currentData.color,
-    emotion: currentData.emotion,
-    thought,
     name,
-    id,
+    thought,
+    emotion,
+    color,
+    timestamp
   };
 
-  saveData(payload);
+  // Save to SheetDB archive
+  saveDataToSheetDB(payload);
 
-  displayData(currentData);
-
-  // Generate URL for QR code (can be same page with params)
-  const url = `${window.location.origin}${window.location.pathname}?emotion=${encodeURIComponent(currentData.emotion)}&thought=${encodeURIComponent(thought)}&id=${encodeURIComponent(id)}`;
-  generateQR(url);
-});
-
-// Download button event
-downloadBtn.addEventListener('click', () => {
-  const moodSection = document.getElementById('moodCapture');
-  html2canvas(moodSection).then(canvas => {
-    const link = document.createElement('a');
-    link.download = 'my_mood.png';
-    link.href = canvas.toDataURL();
-    link.click();
-  });
+  // Generate image and download
+  await generateAndDownloadMood(name, thought, emotion, color);
 });
 
 loadData();
