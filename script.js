@@ -1,3 +1,4 @@
+// Replace with your actual SheetDB API endpoint (keep the quotes)
 const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/m9769bwpvfaga';
 
 const bubble = document.getElementById('emotionBubble');
@@ -6,6 +7,8 @@ const emotionSpan = document.getElementById('emotion');
 const form = document.getElementById('saveForm');
 const qrSection = document.getElementById('qrSection');
 const qrCanvas = document.getElementById('qrCanvas');
+const downloadBtn = document.getElementById('downloadMoodBtn');
+const userThoughtText = document.getElementById('userThoughtText');
 
 let currentData = {};
 
@@ -58,6 +61,7 @@ function displayData(data) {
 
   document.getElementById('emotionTitle').textContent = desc.title;
   document.getElementById('emotionText').textContent = desc.text;
+  userThoughtText.textContent = data.thought || 'Your thought here';
 }
 
 function loadData() {
@@ -75,7 +79,7 @@ function loadData() {
 
   const color = emotionColors[emotion] || '#CCCCCC';
 
-  currentData = { color, emotion };
+ currentData = { color, emotion, thought: '' };
   displayData(currentData);
 }
 
@@ -103,7 +107,8 @@ function generateQR(url) {
     value: url,
     size: 200,
   });
-  qrSection.classList.add('visible');
+  qrSection.style.display = 'flex';
+  downloadBtn.style.display = 'inline-block';
 }
 
 form.addEventListener('submit', (e) => {
@@ -111,6 +116,8 @@ form.addEventListener('submit', (e) => {
   const name = form.name.value || 'anonymous';
   const thought = form.thought.value || '';
   const id = generateId(name);
+
+  currentData.thought = thought;
 
   const payload = {
     timestamp: new Date().toISOString(),
@@ -122,6 +129,8 @@ form.addEventListener('submit', (e) => {
   };
 
   saveData(payload);
+
+    displayData(currentData);
 
   const url = `${window.location.origin}${window.location.pathname}?emotion=${encodeURIComponent(currentData.emotion)}&thought=${encodeURIComponent(thought)}&id=${encodeURIComponent(id)}`;
   generateQR(url);
