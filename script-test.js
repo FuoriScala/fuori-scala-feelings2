@@ -133,6 +133,11 @@ form.addEventListener('submit', (e) => {
 
   displayData(currentData);
 
+  // Generate URL for QR code (can be same page with params)
+  const url = `${window.location.origin}${window.location.pathname}?emotion=${encodeURIComponent(currentData.emotion)}&thought=${encodeURIComponent(thought)}&id=${encodeURIComponent(id)}`;
+  generateQR(url);
+});
+
 // Download button event
 downloadBtn.addEventListener('click', () => {
   const moodSection = document.getElementById('moodCapture');
