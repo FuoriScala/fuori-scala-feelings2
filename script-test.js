@@ -1,5 +1,5 @@
 // Replace with your actual SheetDB API endpoint (keep the quotes)
-const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/YOUR_ENDPOINT_HERE';
+const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/m9769bwpvfaga';
 
 const bubble = document.getElementById('emotionBubble');
 const colorSpan = document.getElementById('color');
@@ -19,9 +19,9 @@ function generateId(name) {
 }
 
 function displayData(data) {
-  bubble.style.background = `linear-gradient(270deg, ${data.color}, #00f2fe, ${data.color})`;
-  bubble.style.backgroundSize = '600% 600%';
-  bubble.style.animation = 'wave 8s ease infinite';
+bubble.style.background = `linear-gradient(270deg, ${data.color}, #00f2fe, ${data.color})`;
+bubble.style.backgroundSize = '600% 600%';
+bubble.style.animation = 'wave 8s ease infinite';
   bubble.textContent = data.emotion;
 
   colorSpan.textContent = data.color;
