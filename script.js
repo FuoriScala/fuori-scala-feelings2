@@ -123,18 +123,19 @@ form.addEventListener('submit', (e) => {
 
   saveData(payload);
 
-  const url = `${window.location.origin}${window.location.pathname}?emotion=${encodeURIComponent(currentData.emotion)}&id=${encodeURIComponent(id)}`;
+  const url = `${window.location.origin}${window.location.pathname}?emotion=${encodeURIComponent(currentData.emotion)}&thought=${encodeURIComponent(thought)}&id=${encodeURIComponent(id)}`;
   generateQR(url);
+});
 
-  // Show "Generate Bag" button
-  const bagUrl = `bag.html?emotion=${encodeURIComponent(currentData.emotion)}&thought=${encodeURIComponent(thought)}`;
-  const bagLink = document.getElementById('bagLink');
-  const bagWrapper = document.getElementById('generateBagLink');
-
-  if (bagLink && bagWrapper) {
-    bagLink.href = bagUrl;
-    bagWrapper.classList.remove('hidden');
-  }
+// Download button event
+downloadBtn.addEventListener('click', () => {
+  const moodSection = document.getElementById('moodCapture');
+  html2canvas(moodSection).then(canvas => {
+    const link = document.createElement('a');
+    link.download = 'my_mood.png';
+    link.href = canvas.toDataURL();
+    link.click();
+  });
 });
 
 loadData();
