@@ -1,5 +1,5 @@
 // Replace with your actual SheetDB API endpoint (keep the quotes)
-const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/m9769bwpvfaga';
+const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/YOUR_ENDPOINT_HERE';
 
 const bubble = document.getElementById('emotionBubble');
 const colorSpan = document.getElementById('color');
