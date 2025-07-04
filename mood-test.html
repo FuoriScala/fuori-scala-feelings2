@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fuori Scala Feelings – Your Emotion Today</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+  <div class="container">
+
+    <h1>Fuori Scala Feelings</h1>
+    <h2>This is your emotion today</h2>
+
+    <!-- Mood display to capture -->
+    <div id="moodCapture" style="background: #fff; padding: 20px; border-radius: 20px; max-width: 350px; margin: 0 auto; box-shadow: 0 0 20px rgba(0,0,0,0.1); text-align: center;">
+      <div id="emotionBubble" style="width: 150px; height: 150px; margin: 20px auto; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 1.5rem; user-select: none;">
+        Emotion
+      </div>
+
+      <div id="emotionDescription" style="margin-top: 20px;">
+        <h3 id="emotionTitle">–</h3>
+        <p id="emotionText">...</p>
+      </div>
+
+      <p><strong>Color:</strong> <span id="color">-</span></p>
+      <p><strong>Emotion:</strong> <span id="emotion">-</span></p>
+
+      <div id="userThoughtDisplay" style="margin-top: 15px; padding: 10px; background: #f0f0f0; border-radius: 12px; min-height: 60px; color: #333; font-weight: 600;">
+        <p id="userThoughtText" style="margin: 0;">Your thought here</p>
+      </div>
+    </div>
+
+    <!-- Thought form -->
+    <form id="saveForm" style="margin-top: 30px; max-width: 350px; margin-left: auto; margin-right: auto;">
+      <input type="text" name="name" placeholder="Your name (optional)" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 8px; border: 2px solid #00aaff;" />
+      <textarea name="thought" placeholder="Write a thought..." rows="4" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #00aaff;"></textarea>
+      <button type="submit" style="width: 100%; padding: 12px; margin-top: 10px; background-color: #0077cc; color: white; border: none; border-radius: 8px; cursor: pointer;">Save your emotion</button>
+    </form>
+
+    <!-- QR code section -->
+    <div id="qrSection" style="margin-top: 30px; display: none; justify-content: center; flex-direction: column; align-items: center;">
+      <p>Saved! Scan your personal QR code:</p>
+      <canvas id="qrCanvas" style="border: 1px solid #ccc; border-radius: 12px;"></canvas>
+    </div>
+
+    <!-- Download button -->
+    <button id="downloadMoodBtn" style="margin-top: 30px; display: none; padding: 12px 24px; font-size: 1rem; background-color: #ff6f91; color: white; border: none; border-radius: 8px; cursor: pointer;">Download my Mood</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
