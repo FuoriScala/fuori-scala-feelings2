@@ -24,7 +24,17 @@ function displayData(data) {
   bubble.style.animation = 'wave 8s ease infinite';
   bubble.textContent = data.emotion;
 
-  colorSpan.textContent = data.color;
+const emotionColorNames = {
+  'Joy': 'Yellow',
+  'Sadness': 'Blue',
+  'Anger': 'Red',
+  'Fear': 'Black',
+  'Calm': 'Green',
+  'Love': 'Pink'
+};
+  
+  const colorName = emotionColorNames[data.emotion] || 'Unknown';
+colorSpan.textContent = ${colorName} (${data.color});
 
  const descriptions = {
   'Joy': {
