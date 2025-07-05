@@ -156,7 +156,7 @@ downloadBtn.addEventListener('click', () => {
     if (!document.getElementById('proceedBtn')) {
       const proceedBtn = document.createElement('button');
       proceedBtn.id = 'proceedBtn';
-      proceedBtn.textContent = 'Go ahead with your journey';
+      proceedBtn.textContent = 'Bring your mood to life';
       proceedBtn.style.marginTop = '15px';
       proceedBtn.style.padding = '12px 24px';
       proceedBtn.style.fontSize = '1rem';
