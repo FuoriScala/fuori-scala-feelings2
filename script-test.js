@@ -142,36 +142,43 @@ form.addEventListener('submit', (e) => {
   downloadBtn.style.display = 'block';
 });
 
-function handleDownloadClick() {
+// Download button event
+downloadBtn.addEventListener('click', () => {
   const moodSection = document.getElementById('moodCapture');
   html2canvas(moodSection).then(canvas => {
+    // Scarica il PNG
     const link = document.createElement('a');
     link.download = 'my_mood.png';
     link.href = canvas.toDataURL();
     link.click();
 
-    // Cambia stile e testo del pulsante
-    downloadBtn.style.backgroundColor = '#25D366'; // verde WhatsApp
-    downloadBtn.textContent = 'Proceed with your journey';
+    // Crea il nuovo bottone verde solo se non esiste già
+    if (!document.getElementById('proceedBtn')) {
+      const proceedBtn = document.createElement('button');
+      proceedBtn.id = 'proceedBtn';
+      proceedBtn.textContent = 'Go ahead with your journey';
+      proceedBtn.style.marginTop = '15px';
+      proceedBtn.style.padding = '12px 24px';
+      proceedBtn.style.fontSize = '1rem';
+      proceedBtn.style.backgroundColor = '#25D366'; // verde WhatsApp
+      proceedBtn.style.color = 'white';
+      proceedBtn.style.border = 'none';
+      proceedBtn.style.borderRadius = '8px';
+      proceedBtn.style.cursor = 'pointer';
+      downloadBtn.insertAdjacentElement('afterend', proceedBtn);
 
-    // Rimuove questo listener (download)
-    downloadBtn.removeEventListener('click', handleDownloadClick);
+      // Click sul nuovo bottone porta a bag.html con params
+      proceedBtn.addEventListener('click', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const emotion = urlParams.get('emotion') || 'Calm';
+        const color = colorSpan.textContent || '#3CB371';
+        const thought = form.thought.value || '';
 
-    // Aggiunge listener per navigare a bag.html
-    downloadBtn.addEventListener('click', () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const emotion = urlParams.get('emotion') || 'Calm';
-      const color = colorSpan.textContent || '#3CB371';
-      const thought = form.thought.value || '';
-
-      const bagUrl = `bag.html?emotion=${encodeURIComponent(emotion)}&color=${encodeURIComponent(color)}&thought=${encodeURIComponent(thought)}`;
-      window.location.href = bagUrl;
-    });
+        const bagUrl = `bag.html?emotion=${encodeURIComponent(emotion)}&color=${encodeURIComponent(color)}&thought=${encodeURIComponent(thought)}`;
+        window.location.href = bagUrl;
+      });
+    }
   });
-}
-
-// Aggiunge listener iniziale per il download
-downloadBtn.addEventListener('click', handleDownloadClick);
-    });
+});
 
 loadData();
