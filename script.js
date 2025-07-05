@@ -27,32 +27,32 @@ function displayData(data) {
   colorSpan.textContent = data.color;
   emotionSpan.textContent = data.emotion;
 
-  const descriptions = {
-    'Joy': {
-      title: 'Today I'm wrapped in Joy',
-      text: 'Bright, sunny, energizing. Sparks creativity and cheerfulness.'
-    },
-    'Sadness': {
-      title: 'Today I'm wrapped in Sadness',
-      text: 'Deep, calm, introspective. Invites reflection and melancholy.'
-    },
-    'Anger': {
-      title: 'Today I'm wrapped in Anger',
-      text: 'Intense, passionate, powerful. Fire-like and impulsive.'
-    },
-    'Fear': {
-      title: 'Today I'm wrapped in Fear',
-      text: 'Dark, mysterious, protective. Linked to uncertainty and the unknown.'
-    },
-    'Calm': {
-      title: 'Today I'm wrapped in Calm',
-      text: 'Natural, relaxing, balanced. A symbol of peace and renewal.'
-    },
-    'Love': {
-      title: 'Today I'm wrapped in Love',
-      text: 'Sweet, welcoming, emotional. Represents affection and tenderness.'
-    }
-  };
+ const descriptions = {
+  'Joy': {
+    title: "Today I'm wrapped in Joy",
+    text: 'Bright, sunny, energizing. Sparks creativity and cheerfulness.'
+  },
+  'Sadness': {
+    title: "Today I'm wrapped in Sadness",
+    text: 'Deep, calm, introspective. Invites reflection and melancholy.'
+  },
+  'Anger': {
+    title: "Today I'm wrapped in Anger",
+    text: 'Intense, passionate, powerful. Fire-like and impulsive.'
+  },
+  'Fear': {
+    title: "Today I'm wrapped in Fear",
+    text: 'Dark, mysterious, protective. Linked to uncertainty and the unknown.'
+  },
+  'Calm': {
+    title: "Today I'm wrapped in Calm",
+    text: 'Natural, relaxing, balanced. A symbol of peace and renewal.'
+  },
+  'Love': {
+    title: "Today I'm wrapped in Love",
+    text: 'Sweet, welcoming, emotional. Represents affection and tenderness.'
+  }
+};
 
   const desc = descriptions[data.emotion] || {
     title: 'Unknown emotion',
