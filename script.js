@@ -25,7 +25,6 @@ function displayData(data) {
   bubble.textContent = data.emotion;
 
   colorSpan.textContent = data.color;
-  emotionSpan.textContent = data.emotion;
 
  const descriptions = {
   'Joy': {
@@ -62,7 +61,13 @@ function displayData(data) {
   document.getElementById('emotionTitle').textContent = desc.title;
   document.getElementById('emotionText').textContent = desc.text;
   userThoughtText.textContent = data.thought || 'Your thought here';
-}
+
+  const now = new Date();
+const options = { year: 'numeric', month: 'long', day: 'numeric' };
+const formattedDate = now.toLocaleDateString('en-US', options);
+
+document.getElementById('date').textContent = formattedDate;
+ } 
 
 function loadData() {
   const urlParams = new URLSearchParams(window.location.search);
