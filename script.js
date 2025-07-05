@@ -101,16 +101,6 @@ function saveData(data) {
     });
 }
 
-function generateQR(url) {
-  const qr = new QRious({
-    element: qrCanvas,
-    value: url,
-    size: 200,
-  });
-  qrSection.style.display = 'flex';
-  downloadBtn.style.display = 'inline-block';
-}
-
 form.addEventListener('submit', (e) => {
   e.preventDefault();
   const name = form.name.value || 'anonymous';
@@ -132,8 +122,8 @@ form.addEventListener('submit', (e) => {
 
     displayData(currentData);
 
-  const url = `${window.location.origin}${window.location.pathname}?emotion=${encodeURIComponent(currentData.emotion)}&thought=${encodeURIComponent(thought)}&id=${encodeURIComponent(id)}`;
-  generateQR(url);
+ // Show download button
+  downloadBtn.style.display = 'block';
 });
 
 // Download button event
