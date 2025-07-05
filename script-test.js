@@ -142,8 +142,7 @@ form.addEventListener('submit', (e) => {
   downloadBtn.style.display = 'block';
 });
 
-// Download button event
-downloadBtn.addEventListener('click', () => {
+function handleDownloadClick() {
   const moodSection = document.getElementById('moodCapture');
   html2canvas(moodSection).then(canvas => {
     const link = document.createElement('a');
@@ -151,13 +150,14 @@ downloadBtn.addEventListener('click', () => {
     link.href = canvas.toDataURL();
     link.click();
 
+    // Cambia stile e testo del pulsante
     downloadBtn.style.backgroundColor = '#25D366'; // verde WhatsApp
     downloadBtn.textContent = 'Proceed with your journey';
 
-    // Disabilita il primo evento click per il download
-    downloadBtn.removeEventListener('click', arguments.callee);
+    // Rimuove questo listener (download)
+    downloadBtn.removeEventListener('click', handleDownloadClick);
 
-    // Aggiunge il nuovo evento per andare alla pagina bag.html
+    // Aggiunge listener per navigare a bag.html
     downloadBtn.addEventListener('click', () => {
       const urlParams = new URLSearchParams(window.location.search);
       const emotion = urlParams.get('emotion') || 'Calm';
@@ -168,6 +168,10 @@ downloadBtn.addEventListener('click', () => {
       window.location.href = bagUrl;
     });
   });
-});
+}
+
+// Aggiunge listener iniziale per il download
+downloadBtn.addEventListener('click', handleDownloadClick);
+    });
 
 loadData();
