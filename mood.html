@@ -34,14 +34,14 @@
     </div>
 
 <!-- Thought form -->
-    <form id="saveForm" style="margin-top: 30px; max-width: 350px; margin-left: auto; margin-right: auto;">
-  <input type="text" name="name" placeholder="Your name (optional)" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 8px; border: 2px solid #00aaff;" />
-  <textarea name="thought" placeholder="Write a thought..." rows="4" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #00aaff;"></textarea>
-  <button type="submit" style="width: 100%; padding: 12px; margin-top: 10px; background-color: #0077cc; color: white; border: none; border-radius: 8px; cursor: pointer;">Save your mood</button>
-</form>
+    <form id="saveForm">
+      <input type="text" name="name" placeholder="Your name (optional)" />
+      <textarea name="thought" placeholder="Write a thought..." rows="4"></textarea>
+    </form>
 
    <!-- Download Button -->
-<button id="downloadMoodBtn" style="margin-top: 20px; display: none; padding: 12px 24px; font-size: 1rem; background-color: #ff6f91; color: white; border: none; border-radius: 8px; cursor: pointer;">
+<button id="downloadMoodBtn"
+  style="margin: 20px auto 0 auto; display: none; padding: 12px 24px; font-size: 1rem; background-color: #ff6f91; color: white; border: none; border-radius: 8px; cursor: pointer; display: block;">
   Download your mood
 </button>
     </div>
