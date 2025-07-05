@@ -71,7 +71,7 @@ colorSpan.textContent = `${colorName} - ${data.color}`;
 
   document.getElementById('emotionTitle').textContent = desc.title;
   document.getElementById('emotionText').textContent = desc.text;
-  userThoughtText.textContent = data.thought || 'Your thought here';
+  userThoughtText.textContent = data.thought || '';
 
   const now = new Date();
 const options = { year: 'numeric', month: 'long', day: 'numeric' };
