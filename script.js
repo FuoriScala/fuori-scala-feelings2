@@ -24,17 +24,18 @@ function displayData(data) {
   bubble.style.animation = 'wave 8s ease infinite';
   bubble.textContent = data.emotion;
 
-const emotionColorNames = {
-  'Joy': 'Yellow',
-  'Sadness': 'Blue',
-  'Anger': 'Red',
-  'Fear': 'Black',
-  'Calm': 'Green',
-  'Love': 'Pink'
+const colorNames = {
+  '#FFD700': 'Yellow',
+  '#4682B4': 'Blue',
+  '#DC143C': 'Red',
+  '#000000': 'Black',
+  '#3CB371': 'Green',
+  '#FF69B4': 'Pink',
+  '#CCCCCC': 'Unknown'
 };
-  
-  const colorName = emotionColorNames[data.emotion] || 'Unknown';
-colorSpan.textContent = ${colorName} (${data.color});
+
+const colorName = colorNames[data.color.toUpperCase()] || 'Unknown';
+colorSpan.textContent = `${colorName} - ${data.color}`;
 
  const descriptions = {
   'Joy': {
