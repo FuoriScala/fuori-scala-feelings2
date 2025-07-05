@@ -29,27 +29,27 @@ function displayData(data) {
 
   const descriptions = {
     'Joy': {
-      title: 'Yellow – Joy',
+      title: 'Today I'm wrapped in Joy',
       text: 'Bright, sunny, energizing. Sparks creativity and cheerfulness.'
     },
     'Sadness': {
-      title: 'Blue – Sadness',
+      title: 'Today I'm wrapped in Sadness',
       text: 'Deep, calm, introspective. Invites reflection and melancholy.'
     },
     'Anger': {
-      title: 'Red – Anger',
+      title: 'Today I'm wrapped in Anger',
       text: 'Intense, passionate, powerful. Fire-like and impulsive.'
     },
     'Fear': {
-      title: 'Black – Fear',
+      title: 'Today I'm wrapped in Fear',
       text: 'Dark, mysterious, protective. Linked to uncertainty and the unknown.'
     },
     'Calm': {
-      title: 'Green – Calm',
+      title: 'Today I'm wrapped in Calm',
       text: 'Natural, relaxing, balanced. A symbol of peace and renewal.'
     },
     'Love': {
-      title: 'Pink – Love',
+      title: 'Today I'm wrapped in Love',
       text: 'Sweet, welcoming, emotional. Represents affection and tenderness.'
     }
   };
