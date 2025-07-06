@@ -43,14 +43,20 @@
       position: relative;
       width: 360px;
       user-select: none;
+      border-radius: 16px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      background: white;
+      padding: 10px;
     }
 
     #bagImage {
       width: 100%;
       border-radius: 16px;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+      user-select: none;
+      pointer-events: none;
     }
 
+    /* Thought text */
     #thoughtText {
       position: absolute;
       top: 50%;
@@ -69,18 +75,20 @@
       min-width: 60px;
       min-height: 30px;
       max-width: 90%;
-      z-index: 10;
+      z-index: 20;
     }
 
+    /* Container for handles & decorations */
     .bag-options {
       max-width: 360px;
-      background: rgba(255, 255, 255, 0.85);
+      background: rgba(255, 255, 255, 0.9);
       border-radius: 20px;
       padding: 20px;
       box-shadow: 0 0 15px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
       gap: 20px;
+      user-select: none;
     }
 
     .bag-options h2 {
@@ -105,14 +113,23 @@
       align-items: center;
       justify-content: center;
       font-size: 0.8rem;
-      cursor: pointer;
+      cursor: grab;
       user-select: none;
       box-shadow: 0 0 5px rgba(0,0,0,0.1);
       border: 2px solid transparent;
+      overflow: hidden;
+      position: relative;
     }
 
     .option-item:hover {
       border-color: #c2185b;
+    }
+
+    .option-item img {
+      max-width: 100%;
+      max-height: 100%;
+      user-select: none;
+      pointer-events: none;
     }
 
     .slideshow-controls {
@@ -142,7 +159,7 @@
   <div class="configurator-container">
     <div id="bagContainer">
       <img id="bagImage" src="" alt="Moody Bag" />
-      <div id="thoughtText" draggable="true">Your thought will appear here</div>
+      <div id="thoughtText" contenteditable="true" draggable="true" spellcheck="false" aria-label="Edit your thought">Your thought will appear here</div>
       <div class="slideshow-controls">
         <button onclick="prevImage()">‹</button>
         <button onclick="nextImage()">›</button>
@@ -152,70 +169,195 @@
     <div class="bag-options">
       <h2>Handles</h2>
       <div class="options-section" id="handles">
-        <div class="option-item" draggable="true">H1</div>
-        <div class="option-item" draggable="true">H2</div>
-        <div class="option-item" draggable="true">H3</div>
-        <div class="option-item" draggable="true">H4</div>
+        <!-- handle images go here dynamically -->
       </div>
 
       <h2>Decorations</h2>
       <div class="options-section" id="decorations">
-        <div class="option-item" draggable="true">D1</div>
-        <div class="option-item" draggable="true">D2</div>
-        <div class="option-item" draggable="true">D3</div>
-        <div class="option-item" draggable="true">D4</div>
+        <!-- decoration images go here dynamically -->
       </div>
     </div>
   </div>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const emotion = params.get('emotion') || 'Calm';
-    const thought = decodeURIComponent(params.get('thought') || 'No thought');
-    const thoughtText = document.getElementById('thoughtText');
-    const bagImage = document.getElementById('bagImage');
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const emotion = params.get('emotion') || 'Calm';
+  const thought = decodeURIComponent(params.get('thought') || 'Your thought will appear here');
 
-    // Images for slideshow
-    const bagImages = Array.from({ length: 4 }, (_, i) => `images/bag_${emotion.toLowerCase()}_${i + 1}.png`);
-    let currentIndex = 0;
+  const bagImage = document.getElementById('bagImage');
+  const thoughtText = document.getElementById('thoughtText');
 
-    function updateBagImage() {
-      bagImage.src = bagImages[currentIndex];
-    }
+  // 4 bag images per emotion, names: bag_emotion_1.png ... bag_emotion_4.png
+  const bagImages = Array.from({length: 4}, (_, i) => `images/bag_${emotion.toLowerCase()}_${i+1}.png`);
+  let currentIndex = 0;
 
-    function nextImage() {
-      currentIndex = (currentIndex + 1) % bagImages.length;
-      updateBagImage();
-    }
+  function updateBagImage() {
+    bagImage.src = bagImages[currentIndex];
+  }
 
-    function prevImage() {
-      currentIndex = (currentIndex - 1 + bagImages.length) % bagImages.length;
-      updateBagImage();
-    }
-
+  function nextImage() {
+    currentIndex = (currentIndex + 1) % bagImages.length;
     updateBagImage();
-    thoughtText.textContent = thought;
+  }
 
-    // Drag & drop for thought
-    thoughtText.addEventListener('dragstart', function(e) {
-      const rect = thoughtText.getBoundingClientRect();
-      e.dataTransfer.setData('offsetX', e.clientX - rect.left);
-      e.dataTransfer.setData('offsetY', e.clientY - rect.top);
+  function prevImage() {
+    currentIndex = (currentIndex - 1 + bagImages.length) % bagImages.length;
+    updateBagImage();
+  }
+
+  updateBagImage();
+  thoughtText.textContent = thought;
+
+  // Drag & Drop for thought text
+  thoughtText.addEventListener('dragstart', e => {
+    const rect = thoughtText.getBoundingClientRect();
+    e.dataTransfer.setData('offsetX', e.clientX - rect.left);
+    e.dataTransfer.setData('offsetY', e.clientY - rect.top);
+  });
+
+  const bagContainer = document.getElementById('bagContainer');
+  bagContainer.addEventListener('dragover', e => e.preventDefault());
+  bagContainer.addEventListener('drop', e => {
+    e.preventDefault();
+    const offsetX = parseInt(e.dataTransfer.getData('offsetX'));
+    const offsetY = parseInt(e.dataTransfer.getData('offsetY'));
+    const newX = e.clientX - bagContainer.offsetLeft - offsetX;
+    const newY = e.clientY - bagContainer.offsetTop - offsetY;
+    thoughtText.style.left = newX + 'px';
+    thoughtText.style.top = newY + 'px';
+    thoughtText.style.transform = 'translate(0, 0)';
+  });
+
+  // --- Handles and Decorations arrays ---
+
+  // Example images for handles & decorations (replace these filenames with your real images)
+  const handlesData = [
+    {id:'h1', src:'images/handles/handle1.png', alt:'Handle 1'},
+    {id:'h2', src:'images/handles/handle2.png', alt:'Handle 2'},
+    {id:'h3', src:'images/handles/handle3.png', alt:'Handle 3'},
+    {id:'h4', src:'images/handles/handle4.png', alt:'Handle 4'},
+  ];
+
+  const decorationsData = [
+    {id:'d1', src:'images/decorations/decor1.png', alt:'Decoration 1'},
+    {id:'d2', src:'images/decorations/decor2.png', alt:'Decoration 2'},
+    {id:'d3', src:'images/decorations/decor3.png', alt:'Decoration 3'},
+    {id:'d4', src:'images/decorations/decor4.png', alt:'Decoration 4'},
+  ];
+
+  // Fill handles and decorations container dynamically
+  function createOptionItem(item) {
+    const div = document.createElement('div');
+    div.className = 'option-item';
+    div.draggable = true;
+    div.title = item.alt;
+    div.dataset.id = item.id;
+
+    const img = document.createElement('img');
+    img.src = item.src;
+    img.alt = item.alt;
+    div.appendChild(img);
+
+    return div;
+  }
+
+  const handlesContainer = document.getElementById('handles');
+  const decorationsContainer = document.getElementById('decorations');
+
+  handlesData.forEach(h => handlesContainer.appendChild(createOptionItem(h)));
+  decorationsData.forEach(d => decorationsContainer.appendChild(createOptionItem(d)));
+
+  // Drag & drop logic for handles and decorations
+
+  function dragStartHandler(e) {
+    const rect = e.target.getBoundingClientRect();
+    e.dataTransfer.setData('itemId', e.target.dataset.id);
+    e.dataTransfer.setData('offsetX', e.clientX - rect.left);
+    e.dataTransfer.setData('offsetY', e.clientY - rect.top);
+  }
+
+  function makeDraggable(container) {
+    container.querySelectorAll('.option-item').forEach(item => {
+      item.addEventListener('dragstart', dragStartHandler);
     });
+  }
 
-    const bagContainer = document.getElementById('bagContainer');
-    bagContainer.addEventListener('dragover', e => e.preventDefault());
-    bagContainer.addEventListener('drop', function(e) {
-      e.preventDefault();
+  makeDraggable(handlesContainer);
+  makeDraggable(decorationsContainer);
+
+  bagContainer.addEventListener('dragover', e => e.preventDefault());
+
+  bagContainer.addEventListener('drop', e => {
+    e.preventDefault();
+    const itemId = e.dataTransfer.getData('itemId');
+    if (!itemId) return;
+
+    const offsetX = parseInt(e.dataTransfer.getData('offsetX'));
+    const offsetY = parseInt(e.dataTransfer.getData('offsetY'));
+    const x = e.clientX - bagContainer.offsetLeft - offsetX;
+    const y = e.clientY - bagContainer.offsetTop - offsetY;
+
+    // Check if an element with this ID already exists on bagContainer, if so, move it, else create it
+    let existing = document.getElementById(itemId + '_onbag');
+    if (existing) {
+      existing.style.left = x + 'px';
+      existing.style.top = y + 'px';
+      existing.style.transform = 'translate(0,0)';
+    } else {
+      // Create a new img element on the bagContainer
+      const dataSource = handlesData.find(h => h.id === itemId) || decorationsData.find(d => d.id === itemId);
+      if (!dataSource) return;
+
+      const newImg = document.createElement('img');
+      newImg.src = dataSource.src;
+      newImg.alt = dataSource.alt;
+      newImg.id = itemId + '_onbag';
+      newImg.style.position = 'absolute';
+      newImg.style.left = x + 'px';
+      newImg.style.top = y + 'px';
+      newImg.style.width = '60px';
+      newImg.style.height = '60px';
+      newImg.style.cursor = 'move';
+      newImg.style.userSelect = 'none';
+      newImg.draggable = true;
+      newImg.style.zIndex = 15;
+
+      // Add drag to move the placed element
+      newImg.addEventListener('dragstart', e => {
+        const rect = newImg.getBoundingClientRect();
+        e.dataTransfer.setData('offsetX', e.clientX - rect.left);
+        e.dataTransfer.setData('offsetY', e.clientY - rect.top);
+        e.dataTransfer.setData('itemId', newImg.id);
+      });
+
+      bagContainer.appendChild(newImg);
+    }
+  });
+
+  // Drag move logic for placed handles/decorations on bag
+  bagContainer.addEventListener('dragover', e => e.preventDefault());
+  bagContainer.addEventListener('drop', e => {
+    e.preventDefault();
+    const id = e.dataTransfer.getData('itemId');
+    if (!id) return;
+
+    // If id ends with _onbag, it's an existing placed item
+    if (id.endsWith('_onbag')) {
+      const element = document.getElementById(id);
+      if (!element) return;
+
       const offsetX = parseInt(e.dataTransfer.getData('offsetX'));
       const offsetY = parseInt(e.dataTransfer.getData('offsetY'));
-      const newX = e.clientX - bagContainer.offsetLeft - offsetX;
-      const newY = e.clientY - bagContainer.offsetTop - offsetY;
-      thoughtText.style.left = `${newX}px`;
-      thoughtText.style.top = `${newY}px`;
-      thoughtText.style.transform = 'translate(0, 0)';
-    });
-  </script>
+      const x = e.clientX - bagContainer.offsetLeft - offsetX;
+      const y = e.clientY - bagContainer.offsetTop - offsetY;
+
+      element.style.left = x + 'px';
+      element.style.top = y + 'px';
+      element.style.transform = 'translate(0,0)';
+    }
+  });
+
+</script>
 
 </body>
 </html>
