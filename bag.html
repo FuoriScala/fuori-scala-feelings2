@@ -56,7 +56,6 @@
       pointer-events: none;
     }
 
-    /* Thought text */
     #thoughtText {
       position: absolute;
       top: 50%;
@@ -78,117 +77,109 @@
       z-index: 20;
     }
 
-    /* Container for handles & decorations */
-    .bag-options {
-      max-width: 360px;
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    .texture-picker {
       display: flex;
-      flex-direction: column;
-      gap: 20px;
-      user-select: none;
-    }
-
-    .bag-options h2 {
-      margin: 0;
-      font-size: 1.3rem;
-      color: #c2185b;
-    }
-
-    .options-section {
-      display: flex;
-      flex-wrap: wrap;
+      justify-content: center;
       gap: 10px;
-      justify-content: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
     }
 
-    .option-item {
-      width: 60px;
-      height: 60px;
-      background: #f0f0f0;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      cursor: grab;
-      user-select: none;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-      border: 2px solid transparent;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .option-item:hover {
-      border-color: #c2185b;
-    }
-
-    .option-item img {
-      max-width: 100%;
-      max-height: 100%;
-      user-select: none;
-      pointer-events: none;
-    }
-
-    .slideshow-controls {
-      margin-top: 10px;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .slideshow-controls button {
-      padding: 6px 12px;
-      background: #c2185b;
-      color: #fff;
+    .texture-picker button {
+      padding: 8px 16px;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
+      background: #eee;
       cursor: pointer;
+      transition: background 0.3s ease;
     }
 
-    .slideshow-controls button:hover {
-      background: #9e0045;
+    .texture-picker button:hover {
+      background: #ddd;
+    }
+
+    #effectOverlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 16px;
+      pointer-events: none;
+      transition: all 0.5s ease;
+    }
+
+    .glossy {
+      backdrop-filter: blur(1px) brightness(1.2);
+      box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.3);
+    }
+
+    .matte {
+      backdrop-filter: none;
+      opacity: 0.1;
+    }
+
+    .glitter {
+      background: repeating-radial-gradient(circle, rgba(255,255,255,0.4), transparent 4px);
+      animation: sparkle 2s infinite;
+      opacity: 0.5;
+    }
+
+    @keyframes sparkle {
+      0% { background-position: 0 0; }
+      100% { background-position: 100px 100px; }
+    }
+
+    .natural {
+      background: repeating-linear-gradient(
+        45deg,
+        rgba(200,180,140,0.2),
+        rgba(200,180,140,0.2) 5px,
+        transparent 5px,
+        transparent 10px
+      );
+      opacity: 0.4;
+    }
+
+    #textureCaption {
+      margin-top: 10px;
+      font-style: italic;
+      color: #555;
     }
   </style>
 </head>
 <body>
-
   <h1>Your Moody Bag</h1>
-
   <div class="configurator-container">
     <div id="bagContainer">
       <img id="bagImage" src="" alt="Moody Bag" />
+      <div id="effectOverlay"></div>
       <div id="thoughtText" contenteditable="true" draggable="true" spellcheck="false" aria-label="Edit your thought">Your thought will appear here</div>
       <div class="slideshow-controls">
         <button onclick="prevImage()">‹</button>
         <button onclick="nextImage()">›</button>
       </div>
     </div>
-
-    <div class="bag-options">
-      <h2>Handles</h2>
-      <div class="options-section" id="handles">
-        <!-- handle images go here dynamically -->
-      </div>
-
-      <h2>Decorations</h2>
-      <div class="options-section" id="decorations">
-        <!-- decoration images go here dynamically -->
-      </div>
-    </div>
   </div>
+  <div class="texture-picker">
+    <button onclick="setTexture('glossy')">✨ Glossy</button>
+    <button onclick="setTexture('matte')">🧵 Matte</button>
+    <button onclick="setTexture('glitter')">💫 Glitter</button>
+    <button onclick="setTexture('natural')">🌿 Natural</button>
+  </div>
+  <p id="textureCaption">Choose your material above</p>
 
 <script>
   const params = new URLSearchParams(window.location.search);
-  const emotion = params.get('emotion') || 'Calm';
+  const emotion = params.get('emotion') || 'calm';
   const thought = decodeURIComponent(params.get('thought') || 'Your thought will appear here');
 
   const bagImage = document.getElementById('bagImage');
   const thoughtText = document.getElementById('thoughtText');
+  const overlay = document.getElementById('effectOverlay');
+  const textureCaption = document.getElementById('textureCaption');
 
-  // 4 bag images per emotion, names: bag_emotion_1.png ... bag_emotion_4.png
-  const bagImages = Array.from({length: 4}, (_, i) => `images/bag_${emotion.toLowerCase()}_${i+1}.png`);
+  const bagImages = Array.from({length: 4}, (_, i) => `images/bags/${emotion.toLowerCase()}/bag_${emotion.toLowerCase()}_${i+1}.png`);
   let currentIndex = 0;
 
   function updateBagImage() {
@@ -208,7 +199,6 @@
   updateBagImage();
   thoughtText.textContent = thought;
 
-  // Drag & Drop for thought text
   thoughtText.addEventListener('dragstart', e => {
     const rect = thoughtText.getBoundingClientRect();
     e.dataTransfer.setData('offsetX', e.clientX - rect.left);
@@ -228,136 +218,28 @@
     thoughtText.style.transform = 'translate(0, 0)';
   });
 
-  // --- Handles and Decorations arrays ---
+  function setTexture(type) {
+    overlay.className = '';
+    void overlay.offsetWidth;
+    overlay.classList.add(type);
 
-  // Example images for handles & decorations (replace these filenames with your real images)
-  const handlesData = [
-    {id:'h1', src:'images/handles/handle1.png', alt:'Handle 1'},
-    {id:'h2', src:'images/handles/handle2.png', alt:'Handle 2'},
-    {id:'h3', src:'images/handles/handle3.png', alt:'Handle 3'},
-    {id:'h4', src:'images/handles/handle4.png', alt:'Handle 4'},
-  ];
-
-  const decorationsData = [
-    {id:'d1', src:'images/decorations/decor1.png', alt:'Decoration 1'},
-    {id:'d2', src:'images/decorations/decor2.png', alt:'Decoration 2'},
-    {id:'d3', src:'images/decorations/decor3.png', alt:'Decoration 3'},
-    {id:'d4', src:'images/decorations/decor4.png', alt:'Decoration 4'},
-  ];
-
-  // Fill handles and decorations container dynamically
-  function createOptionItem(item) {
-    const div = document.createElement('div');
-    div.className = 'option-item';
-    div.draggable = true;
-    div.title = item.alt;
-    div.dataset.id = item.id;
-
-    const img = document.createElement('img');
-    img.src = item.src;
-    img.alt = item.alt;
-    div.appendChild(img);
-
-    return div;
-  }
-
-  const handlesContainer = document.getElementById('handles');
-  const decorationsContainer = document.getElementById('decorations');
-
-  handlesData.forEach(h => handlesContainer.appendChild(createOptionItem(h)));
-  decorationsData.forEach(d => decorationsContainer.appendChild(createOptionItem(d)));
-
-  // Drag & drop logic for handles and decorations
-
-  function dragStartHandler(e) {
-    const rect = e.target.getBoundingClientRect();
-    e.dataTransfer.setData('itemId', e.target.dataset.id);
-    e.dataTransfer.setData('offsetX', e.clientX - rect.left);
-    e.dataTransfer.setData('offsetY', e.clientY - rect.top);
-  }
-
-  function makeDraggable(container) {
-    container.querySelectorAll('.option-item').forEach(item => {
-      item.addEventListener('dragstart', dragStartHandler);
-    });
-  }
-
-  makeDraggable(handlesContainer);
-  makeDraggable(decorationsContainer);
-
-  bagContainer.addEventListener('dragover', e => e.preventDefault());
-
-  bagContainer.addEventListener('drop', e => {
-    e.preventDefault();
-    const itemId = e.dataTransfer.getData('itemId');
-    if (!itemId) return;
-
-    const offsetX = parseInt(e.dataTransfer.getData('offsetX'));
-    const offsetY = parseInt(e.dataTransfer.getData('offsetY'));
-    const x = e.clientX - bagContainer.offsetLeft - offsetX;
-    const y = e.clientY - bagContainer.offsetTop - offsetY;
-
-    // Check if an element with this ID already exists on bagContainer, if so, move it, else create it
-    let existing = document.getElementById(itemId + '_onbag');
-    if (existing) {
-      existing.style.left = x + 'px';
-      existing.style.top = y + 'px';
-      existing.style.transform = 'translate(0,0)';
-    } else {
-      // Create a new img element on the bagContainer
-      const dataSource = handlesData.find(h => h.id === itemId) || decorationsData.find(d => d.id === itemId);
-      if (!dataSource) return;
-
-      const newImg = document.createElement('img');
-      newImg.src = dataSource.src;
-      newImg.alt = dataSource.alt;
-      newImg.id = itemId + '_onbag';
-      newImg.style.position = 'absolute';
-      newImg.style.left = x + 'px';
-      newImg.style.top = y + 'px';
-      newImg.style.width = '60px';
-      newImg.style.height = '60px';
-      newImg.style.cursor = 'move';
-      newImg.style.userSelect = 'none';
-      newImg.draggable = true;
-      newImg.style.zIndex = 15;
-
-      // Add drag to move the placed element
-      newImg.addEventListener('dragstart', e => {
-        const rect = newImg.getBoundingClientRect();
-        e.dataTransfer.setData('offsetX', e.clientX - rect.left);
-        e.dataTransfer.setData('offsetY', e.clientY - rect.top);
-        e.dataTransfer.setData('itemId', newImg.id);
-      });
-
-      bagContainer.appendChild(newImg);
+    switch(type) {
+      case 'glossy':
+        textureCaption.textContent = "Shiny like your potential today ✨";
+        break;
+      case 'matte':
+        textureCaption.textContent = "Grounded, soft, and steady 🧵";
+        break;
+      case 'glitter':
+        textureCaption.textContent = "You're sparkling from within 💫";
+        break;
+      case 'natural':
+        textureCaption.textContent = "Rooted in simplicity 🌿";
+        break;
+      default:
+        textureCaption.textContent = "Choose your material above";
     }
-  });
-
-  // Drag move logic for placed handles/decorations on bag
-  bagContainer.addEventListener('dragover', e => e.preventDefault());
-  bagContainer.addEventListener('drop', e => {
-    e.preventDefault();
-    const id = e.dataTransfer.getData('itemId');
-    if (!id) return;
-
-    // If id ends with _onbag, it's an existing placed item
-    if (id.endsWith('_onbag')) {
-      const element = document.getElementById(id);
-      if (!element) return;
-
-      const offsetX = parseInt(e.dataTransfer.getData('offsetX'));
-      const offsetY = parseInt(e.dataTransfer.getData('offsetY'));
-      const x = e.clientX - bagContainer.offsetLeft - offsetX;
-      const y = e.clientY - bagContainer.offsetTop - offsetY;
-
-      element.style.left = x + 'px';
-      element.style.top = y + 'px';
-      element.style.transform = 'translate(0,0)';
-    }
-  });
-
+  }
 </script>
-
 </body>
 </html>
