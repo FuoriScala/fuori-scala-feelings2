@@ -179,7 +179,7 @@
   const overlay = document.getElementById('effectOverlay');
   const textureCaption = document.getElementById('textureCaption');
 
-  const bagImages = Array.from({length: 4}, (_, i) => `images/bags/${emotion.toLowerCase()}/bag_${emotion.toLowerCase()}_${i+1}.png`);
+ const bagImages = Array.from({length: 4}, (_, i) => `images/${emotion.toLowerCase()}/bag_${emotion.toLowerCase()}_${i+1}.png`);
   let currentIndex = 0;
 
   function updateBagImage() {
