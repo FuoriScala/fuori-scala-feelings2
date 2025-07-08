@@ -6,9 +6,8 @@
   <title>Your Moody Bag</title>
   <style>
     html, body {
-      margin: 0; padding: 0; height: 100%;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      text-align: center;
+      margin: 0; padding: 0; min-height: 100vh;
+      font-family: 'Arial Rounded MT Bold', sans-serif;
       background: linear-gradient(-45deg, #fce4ec, #f8bbd0, #fce4ec, #f8bbd0);
       background-size: 400% 400%;
       animation: gradientShift 10s ease infinite;
@@ -25,27 +24,26 @@
     }
 
     h1 {
-      font-size: 2rem;
+      font-size: 2.5rem;
       color: #c2185b;
-      margin: 40px 0 20px 0;
+      margin-top: 40px;
+      text-align: center;
     }
 
-    .configurator-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 40px;
-      padding: 0 20px 40px 20px;
-      max-width: 1000px;
+    .section-title {
+      font-size: 1.2rem;
+      margin-top: 40px;
+      color: #555;
     }
 
     #bagContainer {
       position: relative;
       width: 360px;
-      user-select: none;
+      max-width: 90vw;
+      margin: 20px auto;
+      background: white;
       border-radius: 16px;
       box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-      background: white;
       padding: 10px;
     }
 
@@ -56,11 +54,51 @@
       pointer-events: none;
     }
 
+    #effectOverlay {
+      position: absolute;
+      top: 10px; left: 10px;
+      width: calc(100% - 20px);
+      height: calc(100% - 20px);
+      border-radius: 16px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .slideshow-controls {
+      display: flex;
+      justify-content: center;
+      margin: 15px 0 10px 0;
+    }
+
+    .slideshow-controls button {
+      font-size: 2rem;
+      padding: 8px 20px;
+      margin: 0 10px;
+      background: #fff;
+      border: 2px solid #c2185b;
+      color: #c2185b;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    #thoughtSection {
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    #thoughtBox {
+      background: rgba(255,255,255,0.8);
+      border: 2px dashed #ccc;
+      padding: 10px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 400px;
+      margin: 10px auto;
+    }
+
     #thoughtText {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      display: none;
       font-size: 1.1rem;
       font-weight: bold;
       color: #fff;
@@ -98,88 +136,79 @@
       background: #ddd;
     }
 
-    #effectOverlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border-radius: 16px;
-      pointer-events: none;
-      transition: all 0.5s ease;
+    .sparkling-glitter {
+      background-image: url('images/effects/glitter.gif');
+      background-size: cover;
+      opacity: 0.6;
+      animation: shimmer 1.5s infinite linear;
     }
 
-    .glossy {
-      backdrop-filter: blur(1px) brightness(1.2);
-      box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.3);
+    @keyframes shimmer {
+      0% { background-position: 0 0; }
+      100% { background-position: 100% 100%; }
     }
 
-    .matte {
-      backdrop-filter: none;
-      opacity: 0.1;
-    }
-
-    .glitter {
-      background: repeating-radial-gradient(circle, rgba(255,255,255,0.4), transparent 4px);
-      animation: sparkle 2s infinite;
+    .leather-texture {
+      background: url('images/effects/leather.png');
+      background-size: cover;
       opacity: 0.5;
     }
 
-    @keyframes sparkle {
-      0% { background-position: 0 0; }
-      100% { background-position: 100px 100px; }
+    .holo-shine {
+      background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,0,255,0.2), rgba(0,255,255,0.2));
+      mix-blend-mode: screen;
+      animation: holo 4s linear infinite;
     }
 
-    .natural {
-      background: repeating-linear-gradient(
-        45deg,
-        rgba(200,180,140,0.2),
-        rgba(200,180,140,0.2) 5px,
-        transparent 5px,
-        transparent 10px
-      );
-      opacity: 0.4;
+    @keyframes holo {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 100% 100%; }
     }
 
-    #textureCaption {
-      margin-top: 10px;
-      font-style: italic;
-      color: #555;
+    .neon-glow {
+      box-shadow: 0 0 15px 5px rgba(255,0,255,0.4), 0 0 30px 10px rgba(0,255,255,0.2);
     }
   </style>
 </head>
 <body>
   <h1>Your Moody Bag</h1>
-  <div class="configurator-container">
-    <div id="bagContainer">
-      <img id="bagImage" src="" alt="Moody Bag" />
-      <div id="effectOverlay"></div>
-      <div id="thoughtText" contenteditable="true" draggable="true" spellcheck="false" aria-label="Edit your thought">Your thought will appear here</div>
-      <div class="slideshow-controls">
-        <button onclick="prevImage()">‹</button>
-        <button onclick="nextImage()">›</button>
-      </div>
-    </div>
+  <div class="section-title">Choose your mood bag</div>
+
+  <div id="bagContainer">
+    <img id="bagImage" src="" alt="Moody Bag" />
+    <div id="effectOverlay"></div>
+    <div id="thoughtText" contenteditable="true" draggable="true" spellcheck="false"></div>
   </div>
+
+  <div class="slideshow-controls">
+    <button onclick="prevImage()">&#10094;</button>
+    <button onclick="nextImage()">&#10095;</button>
+  </div>
+
+  <div class="section-title">Choose your bag texture</div>
   <div class="texture-picker">
-    <button onclick="setTexture('glossy')">✨ Glossy</button>
-    <button onclick="setTexture('matte')">🧵 Matte</button>
-    <button onclick="setTexture('glitter')">💫 Glitter</button>
-    <button onclick="setTexture('natural')">🌿 Natural</button>
+    <button onclick="setTexture('sparkling-glitter')">💎 Sparkling Glitter</button>
+    <button onclick="setTexture('leather-texture')">👜 Leather</button>
+    <button onclick="setTexture('holo-shine')">🌈 Holo Shine</button>
+    <button onclick="setTexture('neon-glow')">⚡ Neon Glow</button>
   </div>
-  <p id="textureCaption">Choose your material above</p>
+
+  <div id="thoughtSection">
+    <div class="section-title">Drag your thought on the bag</div>
+    <div id="thoughtBox"></div>
+  </div>
 
 <script>
   const params = new URLSearchParams(window.location.search);
   const emotion = params.get('emotion') || 'calm';
-  const thought = decodeURIComponent(params.get('thought') || 'Your thought will appear here');
+  const thought = decodeURIComponent(params.get('thought') || 'Your thought here');
 
   const bagImage = document.getElementById('bagImage');
   const thoughtText = document.getElementById('thoughtText');
   const overlay = document.getElementById('effectOverlay');
-  const textureCaption = document.getElementById('textureCaption');
-  
-const bagImages = Array.from({length: 4}, (_, i) => `images/${emotion.toLowerCase()}/bag_${emotion.toLowerCase()}_${i+1}.jpg`);
+  const thoughtBox = document.getElementById('thoughtBox');
+
+  const bagImages = Array.from({length: 4}, (_, i) => `images/${emotion.toLowerCase()}/bag_${emotion.toLowerCase()}_${i+1}.jpg`);
   let currentIndex = 0;
 
   function updateBagImage() {
@@ -197,7 +226,12 @@ const bagImages = Array.from({length: 4}, (_, i) => `images/${emotion.toLowerCas
   }
 
   updateBagImage();
-  thoughtText.textContent = thought;
+  thoughtBox.textContent = thought;
+
+  thoughtBox.addEventListener('click', () => {
+    thoughtText.textContent = thoughtBox.textContent;
+    thoughtText.style.display = 'block';
+  });
 
   thoughtText.addEventListener('dragstart', e => {
     const rect = thoughtText.getBoundingClientRect();
@@ -222,23 +256,6 @@ const bagImages = Array.from({length: 4}, (_, i) => `images/${emotion.toLowerCas
     overlay.className = '';
     void overlay.offsetWidth;
     overlay.classList.add(type);
-
-    switch(type) {
-      case 'glossy':
-        textureCaption.textContent = "Shiny like your potential today ✨";
-        break;
-      case 'matte':
-        textureCaption.textContent = "Grounded, soft, and steady 🧵";
-        break;
-      case 'glitter':
-        textureCaption.textContent = "You're sparkling from within 💫";
-        break;
-      case 'natural':
-        textureCaption.textContent = "Rooted in simplicity 🌿";
-        break;
-      default:
-        textureCaption.textContent = "Choose your material above";
-    }
   }
 </script>
 </body>
