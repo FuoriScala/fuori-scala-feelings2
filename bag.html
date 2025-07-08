@@ -176,7 +176,7 @@
 
   <div id="bagContainer">
     <img id="bagImage" src="" alt="Moody Bag" />
-    <div id="effectOverlay"></div>
+  <img id="textureOverlay" src="" alt="" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; z-index: 2;" />
     <div id="thoughtText" contenteditable="true" draggable="true" spellcheck="false"></div>
   </div>
 
@@ -186,12 +186,17 @@
   </div>
 
   <div class="section-title">Choose your bag texture</div>
-  <div class="texture-picker">
-    <button onclick="setTexture('sparkling-glitter')">💎 Sparkling Glitter</button>
-    <button onclick="setTexture('leather-texture')">👜 Leather</button>
-    <button onclick="setTexture('holo-shine')">🌈 Holo Shine</button>
-    <button onclick="setTexture('neon-glow')">⚡ Neon Glow</button>
-  </div>
+<div class="texture-picker">
+  <button onclick="setTexture('woven')">🧶 Woven</button>
+  <button onclick="setTexture('starring')">⭐ Starring</button>
+  <button onclick="setTexture('skulls')">💀 Skulls</button>
+  <button onclick="setTexture('escheresque-dark')">🌀 Escher</button>
+  <button onclick="setTexture('cartographer')">🗺️ Cartographer</button>
+  <button onclick="setTexture('argyle')">🧥 Argyle</button>
+  <button onclick="setTexture('basketball')">🏀 Basketball</button>
+  <button onclick="setTexture('black-scales')">🐉 Scales</button>
+  <button onclick="removeTexture()">❌ Remove Texture</button>
+</div>
 
   <div id="thoughtSection">
     <div class="section-title">Drag your thought on the bag</div>
@@ -252,11 +257,17 @@
     thoughtText.style.transform = 'translate(0, 0)';
   });
 
-  function setTexture(type) {
-    overlay.className = '';
-    void overlay.offsetWidth;
-    overlay.classList.add(type);
-  }
+ function setTexture(name) {
+  const textureOverlay = document.getElementById('textureOverlay');
+  textureOverlay.src = `images/effects/${name}.png`;
+  textureOverlay.style.display = 'block';
+}
+
+function removeTexture() {
+  const textureOverlay = document.getElementById('textureOverlay');
+  textureOverlay.src = '';
+  textureOverlay.style.display = 'none';
+}
 </script>
 </body>
 </html>
