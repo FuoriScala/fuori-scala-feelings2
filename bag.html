@@ -65,10 +65,12 @@
       pointer-events: none;
       z-index: 2;
       display: none;
-      background-repeat: no-repeat;
-      background-size: cover;
 
-      /* Apply masking */
+      background-repeat: repeat;
+      background-position: center;
+      background-size: 80px 80px;
+
+      /* Masking to bag shape */
       mask-size: contain;
       mask-repeat: no-repeat;
       mask-position: center;
@@ -186,11 +188,16 @@
     <button onclick="setTexture('woven')">🧶 Woven</button>
     <button onclick="setTexture('starring')">⭐ Starring</button>
     <button onclick="setTexture('skulls')">💀 Skulls</button>
+    <button onclick="setTexture('diagmonds')">🔷 Diagmonds</button>
+    <button onclick="setTexture('food')">🍽️ Food</button>
+        <button onclick="setTexture('football-no-lines')">🏈 Football no lines</button>
+    <button onclick="setTexture('my-little-plaid-dark')">🧵 My little plaid dark</button>
+     <button onclick="setTexture('robots')">🤖 Robots</button>
     <button onclick="setTexture('escheresque-dark')">🌀 Escher</button>
     <button onclick="setTexture('cartographer')">🗺️ Cartographer</button>
-    <button onclick="setTexture('argyle')">🧥 Argyle</button>
+    <button onclick="setTexture('argyle')">👔 Argyle</button>
     <button onclick="setTexture('basketball')">🏀 Basketball</button>
-    <button onclick="setTexture('black-scales')">🐉 Scales</button>
+    <button onclick="setTexture('dark-mosaic')">🧩 Dark mosaic</button>
     <button onclick="removeTexture()">❌ Remove Texture</button>
   </div>
 
@@ -219,12 +226,10 @@
       bagImage.src = newSrc;
       bagName.textContent = bagNames[currentIndex];
 
-      // fade animation
       bagName.classList.remove('fade-in');
-      void bagName.offsetWidth; // trigger reflow
+      void bagName.offsetWidth;
       bagName.classList.add('fade-in');
 
-      // If a texture is applied, remask it
       if (textureOverlay.style.display === 'block') {
         textureOverlay.style.maskImage = `url(${newSrc})`;
         textureOverlay.style.webkitMaskImage = `url(${newSrc})`;
@@ -274,10 +279,18 @@
 
       textureOverlay.style.display = 'block';
       textureOverlay.style.backgroundImage = `url(${textureURL})`;
-
-      // Apply the mask using the current bag shape
       textureOverlay.style.maskImage = `url(${maskURL})`;
       textureOverlay.style.webkitMaskImage = `url(${maskURL})`;
+
+      // Custom scaling for specific textures
+      let size = '80px 80px';
+      if (name === 'dark-mosaic') size = '60px 60px';
+      if (name === 'starring') size = '70px 70px';
+      if (name === 'cartographer') size = '300px 300px';
+       if (name === 'skulls') size = '300px 300px';
+      if (name === 'argyle') size = '65px 65px';
+      if (name === 'escher') size = '30px 30px';
+      textureOverlay.style.backgroundSize = size;
     }
 
     function removeTexture() {
