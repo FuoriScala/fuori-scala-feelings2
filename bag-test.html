@@ -65,10 +65,12 @@
       pointer-events: none;
       z-index: 2;
       display: none;
-      background-repeat: no-repeat;
-      background-size: cover;
 
-      /* Apply masking */
+      background-repeat: repeat;
+      background-position: center;
+      background-size: 80px 80px;
+
+      /* Masking to bag shape */
       mask-size: contain;
       mask-repeat: no-repeat;
       mask-position: center;
@@ -219,12 +221,10 @@
       bagImage.src = newSrc;
       bagName.textContent = bagNames[currentIndex];
 
-      // fade animation
       bagName.classList.remove('fade-in');
-      void bagName.offsetWidth; // trigger reflow
+      void bagName.offsetWidth;
       bagName.classList.add('fade-in');
 
-      // If a texture is applied, remask it
       if (textureOverlay.style.display === 'block') {
         textureOverlay.style.maskImage = `url(${newSrc})`;
         textureOverlay.style.webkitMaskImage = `url(${newSrc})`;
@@ -274,10 +274,16 @@
 
       textureOverlay.style.display = 'block';
       textureOverlay.style.backgroundImage = `url(${textureURL})`;
-
-      // Apply the mask using the current bag shape
       textureOverlay.style.maskImage = `url(${maskURL})`;
       textureOverlay.style.webkitMaskImage = `url(${maskURL})`;
+
+      // Custom scaling for specific textures
+      let size = '80px 80px';
+      if (name === 'scales') size = '60px 60px';
+      if (name === 'starring') size = '70px 70px';
+      if (name === 'cartographer') size = '100px 100px';
+      if (name === 'argyle') size = '65px 65px';
+      textureOverlay.style.backgroundSize = size;
     }
 
     function removeTexture() {
@@ -289,4 +295,3 @@
   </script>
 </body>
 </html>
-
