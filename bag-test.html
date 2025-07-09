@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Moody Bag</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0; min-height: 100vh;
+      font-family: 'Arial Rounded MT Bold', sans-serif;
+      background: linear-gradient(-45deg, #fce4ec, #f8bbd0, #fce4ec, #f8bbd0);
+      background-size: 400% 400%;
+      animation: gradientShift 10s ease infinite;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      color: #c2185b;
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      margin-top: 40px;
+      color: #555;
+    }
+
+    #bagContainer {
+      position: relative;
+      width: 360px;
+      max-width: 90vw;
+      margin: 20px auto 10px;
+    }
+
+    #bagImage {
+      width: 100%;
+      user-select: none;
+      pointer-events: none;
+      display: block;
+    }
+
+    #textureOverlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+      z-index: 2;
+      display: none;
+    }
+
+    #bagName {
+      font-size: 1.2rem;
+      color: #c2185b;
+      margin-bottom: 10px;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    .fade-in {
+      opacity: 1 !important;
+    }
+
+    .slideshow-controls {
+      display: flex;
+      justify-content: center;
+      margin: 10px 0;
+    }
+
+    .slideshow-controls button {
+      font-size: 2rem;
+      padding: 8px 20px;
+      margin: 0 10px;
+      background: #fff;
+      border: 2px solid #c2185b;
+      color: #c2185b;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    #thoughtSection {
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    #thoughtBox {
+      background: rgba(255,255,255,0.8);
+      border: 2px dashed #ccc;
+      padding: 10px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 400px;
+      margin: 10px auto;
+    }
+
+    #thoughtText {
+      position: absolute;
+      display: none;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 10px 14px;
+      border-radius: 8px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+      cursor: move;
+      resize: both;
+      overflow: auto;
+      min-width: 60px;
+      min-height: 30px;
+      max-width: 90%;
+      z-index: 20;
+    }
+
+    .texture-picker {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .texture-picker button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      background: #eee;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .texture-picker button:hover {
+      background: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <h1>Your Moody Bag</h1>
+  <div class="section-title">Choose your mood bag</div>
+
+  <div id="bagContainer">
+    <img id="bagImage" src="" alt="Moody Bag" />
+    <img id="textureOverlay" src="" alt="" />
+    <div id="thoughtText" contenteditable="true" draggable="true" spellcheck="false"></div>
+  </div>
+
+  <!-- Nome borsa visibile -->
+  <div id="bagName">Tote</div>
+
+  <div class="slideshow-controls">
+    <button onclick="prevImage()">&#10094;</button>
+    <button onclick="nextImage()">&#10095;</button>
+  </div>
+
+  <div class="section-title">Choose your bag texture</div>
+  <div class="texture-picker">
+    <button onclick="setTexture('woven')">🧶 Woven</button>
+    <button onclick="setTexture('starring')">⭐ Starring</button>
+    <button onclick="setTexture('skulls')">💀 Skulls</button>
+    <button onclick="setTexture('escheresque-dark')">🌀 Escher</button>
+    <button onclick="setTexture('cartographer')">🗺️ Cartographer</button>
+    <button onclick="setTexture('argyle')">🧥 Argyle</button>
+    <button onclick="setTexture('basketball')">🏀 Basketball</button>
+    <button onclick="setTexture('black-scales')">🐉 Scales</button>
+    <button onclick="removeTexture()">❌ Remove Texture</button>
+  </div>
+
+  <div id="thoughtSection">
+    <div class="section-title">Drag your thought on the bag</div>
+    <div id="thoughtBox"></div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const emotion = params.get('emotion') || 'calm';
+    const thought = decodeURIComponent(params.get('thought') || 'Your thought here');
+
+    const bagImage = document.getElementById('bagImage');
+    const textureOverlay = document.getElementById('textureOverlay');
+    const thoughtText = document.getElementById('thoughtText');
+    const thoughtBox = document.getElementById('thoughtBox');
+    const bagName = document.getElementById('bagName');
+
+    const bagImages = Array.from({ length: 4 }, (_, i) => `images/${emotion.toLowerCase()}/bag_${emotion.toLowerCase()}_${i + 1}.png`);
+    const bagNames = ['Tote', 'Pochette', 'Duffel', 'Baguette'];
+    let currentIndex = 0;
+
+    function updateBagImage() {
+      bagImage.src = bagImages[currentIndex];
+      bagName.textContent = bagNames[currentIndex];
+
+      // fade animation
+      bagName.classList.remove('fade-in');
+      void bagName.offsetWidth; // trigger reflow
+      bagName.classList.add('fade-in');
+    }
+
+    function nextImage() {
+      currentIndex = (currentIndex + 1) % bagImages.length;
+      updateBagImage();
+    }
+
+    function prevImage() {
+      currentIndex = (currentIndex - 1 + bagImages.length) % bagImages.length;
+      updateBagImage();
+    }
+
+    updateBagImage();
+    thoughtBox.textContent = thought;
+
+    thoughtBox.addEventListener('click', () => {
+      thoughtText.textContent = thoughtBox.textContent;
+      thoughtText.style.display = 'block';
+    });
+
+    thoughtText.addEventListener('dragstart', e => {
+      const rect = thoughtText.getBoundingClientRect();
+      e.dataTransfer.setData('offsetX', e.clientX - rect.left);
+      e.dataTransfer.setData('offsetY', e.clientY - rect.top);
+    });
+
+    const bagContainer = document.getElementById('bagContainer');
+    bagContainer.addEventListener('dragover', e => e.preventDefault());
+    bagContainer.addEventListener('drop', e => {
+      e.preventDefault();
+      const offsetX = parseInt(e.dataTransfer.getData('offsetX'));
+      const offsetY = parseInt(e.dataTransfer.getData('offsetY'));
+      const newX = e.clientX - bagContainer.offsetLeft - offsetX;
+      const newY = e.clientY - bagContainer.offsetTop - offsetY;
+      thoughtText.style.left = newX + 'px';
+      thoughtText.style.top = newY + 'px';
+      thoughtText.style.transform = 'translate(0, 0)';
+    });
+
+    function setTexture(name) {
+      textureOverlay.src = `images/effects/${name}.png`;
+      textureOverlay.style.display = 'block';
+    }
+
+    function removeTexture() {
+      textureOverlay.src = '';
+      textureOverlay.style.display = 'none';
+    }
+  </script>
+</body>
+</html>
