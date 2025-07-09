@@ -43,6 +43,12 @@
       margin: 20px auto 10px;
     }
 
+    .bag-stack {
+      position: relative;
+      width: 100%;
+      height: auto;
+    }
+
     #bagImage {
       width: 100%;
       user-select: none;
@@ -56,10 +62,19 @@
       left: 0;
       width: 100%;
       height: 100%;
-      object-fit: contain;
       pointer-events: none;
       z-index: 2;
       display: none;
+      background-repeat: no-repeat;
+      background-size: cover;
+
+      /* Apply masking */
+      mask-size: contain;
+      mask-repeat: no-repeat;
+      mask-position: center;
+      -webkit-mask-size: contain;
+      -webkit-mask-repeat: no-repeat;
+      -webkit-mask-position: center;
     }
 
     #bagName {
@@ -152,12 +167,13 @@
   <div class="section-title">Choose your mood bag</div>
 
   <div id="bagContainer">
-    <img id="bagImage" src="" alt="Moody Bag" />
-    <img id="textureOverlay" src="" alt="" />
+    <div class="bag-stack">
+      <img id="bagImage" src="" alt="Moody Bag" />
+      <div id="textureOverlay"></div>
+    </div>
     <div id="thoughtText" contenteditable="true" draggable="true" spellcheck="false"></div>
   </div>
 
-  <!-- Nome borsa visibile -->
   <div id="bagName">Tote</div>
 
   <div class="slideshow-controls">
@@ -199,13 +215,20 @@
     let currentIndex = 0;
 
     function updateBagImage() {
-      bagImage.src = bagImages[currentIndex];
+      const newSrc = bagImages[currentIndex];
+      bagImage.src = newSrc;
       bagName.textContent = bagNames[currentIndex];
 
       // fade animation
       bagName.classList.remove('fade-in');
       void bagName.offsetWidth; // trigger reflow
       bagName.classList.add('fade-in');
+
+      // If a texture is applied, remask it
+      if (textureOverlay.style.display === 'block') {
+        textureOverlay.style.maskImage = `url(${newSrc})`;
+        textureOverlay.style.webkitMaskImage = `url(${newSrc})`;
+      }
     }
 
     function nextImage() {
@@ -246,14 +269,24 @@
     });
 
     function setTexture(name) {
-      textureOverlay.src = `images/effects/${name}.png`;
+      const textureURL = `images/effects/${name}.png`;
+      const maskURL = bagImage.src;
+
       textureOverlay.style.display = 'block';
+      textureOverlay.style.backgroundImage = `url(${textureURL})`;
+
+      // Apply the mask using the current bag shape
+      textureOverlay.style.maskImage = `url(${maskURL})`;
+      textureOverlay.style.webkitMaskImage = `url(${maskURL})`;
     }
 
     function removeTexture() {
-      textureOverlay.src = '';
       textureOverlay.style.display = 'none';
+      textureOverlay.style.backgroundImage = '';
+      textureOverlay.style.maskImage = '';
+      textureOverlay.style.webkitMaskImage = '';
     }
   </script>
 </body>
 </html>
+
