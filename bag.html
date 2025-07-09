@@ -40,34 +40,59 @@
       position: relative;
       width: 360px;
       max-width: 90vw;
-      margin: 20px auto;
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-      padding: 10px;
+      margin: 20px auto 10px;
+    }
+
+    .bag-stack {
+      position: relative;
+      width: 100%;
+      height: auto;
     }
 
     #bagImage {
       width: 100%;
-      border-radius: 16px;
       user-select: none;
       pointer-events: none;
+      display: block;
     }
 
-    #effectOverlay {
+    #textureOverlay {
       position: absolute;
-      top: 10px; left: 10px;
-      width: calc(100% - 20px);
-      height: calc(100% - 20px);
-      border-radius: 16px;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       pointer-events: none;
       z-index: 2;
+      display: none;
+      background-repeat: no-repeat;
+      background-size: cover;
+
+      /* Apply masking */
+      mask-size: contain;
+      mask-repeat: no-repeat;
+      mask-position: center;
+      -webkit-mask-size: contain;
+      -webkit-mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+    }
+
+    #bagName {
+      font-size: 1.2rem;
+      color: #c2185b;
+      margin-bottom: 10px;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+
+    .fade-in {
+      opacity: 1 !important;
     }
 
     .slideshow-controls {
       display: flex;
       justify-content: center;
-      margin: 15px 0 10px 0;
+      margin: 10px 0;
     }
 
     .slideshow-controls button {
@@ -135,39 +160,6 @@
     .texture-picker button:hover {
       background: #ddd;
     }
-
-    .sparkling-glitter {
-      background-image: url('images/effects/glitter.gif');
-      background-size: cover;
-      opacity: 0.6;
-      animation: shimmer 1.5s infinite linear;
-    }
-
-    @keyframes shimmer {
-      0% { background-position: 0 0; }
-      100% { background-position: 100% 100%; }
-    }
-
-    .leather-texture {
-      background: url('images/effects/leather.png');
-      background-size: cover;
-      opacity: 0.5;
-    }
-
-    .holo-shine {
-      background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,0,255,0.2), rgba(0,255,255,0.2));
-      mix-blend-mode: screen;
-      animation: holo 4s linear infinite;
-    }
-
-    @keyframes holo {
-      0% { background-position: 0% 0%; }
-      100% { background-position: 100% 100%; }
-    }
-
-    .neon-glow {
-      box-shadow: 0 0 15px 5px rgba(255,0,255,0.4), 0 0 30px 10px rgba(0,255,255,0.2);
-    }
   </style>
 </head>
 <body>
@@ -175,10 +167,14 @@
   <div class="section-title">Choose your mood bag</div>
 
   <div id="bagContainer">
-    <img id="bagImage" src="" alt="Moody Bag" />
-  <img id="textureOverlay" src="" alt="" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; z-index: 2;" />
+    <div class="bag-stack">
+      <img id="bagImage" src="" alt="Moody Bag" />
+      <div id="textureOverlay"></div>
+    </div>
     <div id="thoughtText" contenteditable="true" draggable="true" spellcheck="false"></div>
   </div>
+
+  <div id="bagName">Tote</div>
 
   <div class="slideshow-controls">
     <button onclick="prevImage()">&#10094;</button>
@@ -186,88 +182,110 @@
   </div>
 
   <div class="section-title">Choose your bag texture</div>
-<div class="texture-picker">
-  <button onclick="setTexture('woven')">🧶 Woven</button>
-  <button onclick="setTexture('starring')">⭐ Starring</button>
-  <button onclick="setTexture('skulls')">💀 Skulls</button>
-  <button onclick="setTexture('escheresque-dark')">🌀 Escher</button>
-  <button onclick="setTexture('cartographer')">🗺️ Cartographer</button>
-  <button onclick="setTexture('argyle')">🧥 Argyle</button>
-  <button onclick="setTexture('basketball')">🏀 Basketball</button>
-  <button onclick="setTexture('black-scales')">🐉 Scales</button>
-  <button onclick="removeTexture()">❌ Remove Texture</button>
-</div>
+  <div class="texture-picker">
+    <button onclick="setTexture('woven')">🧶 Woven</button>
+    <button onclick="setTexture('starring')">⭐ Starring</button>
+    <button onclick="setTexture('skulls')">💀 Skulls</button>
+    <button onclick="setTexture('escheresque-dark')">🌀 Escher</button>
+    <button onclick="setTexture('cartographer')">🗺️ Cartographer</button>
+    <button onclick="setTexture('argyle')">🧥 Argyle</button>
+    <button onclick="setTexture('basketball')">🏀 Basketball</button>
+    <button onclick="setTexture('black-scales')">🐉 Scales</button>
+    <button onclick="removeTexture()">❌ Remove Texture</button>
+  </div>
 
   <div id="thoughtSection">
     <div class="section-title">Drag your thought on the bag</div>
     <div id="thoughtBox"></div>
   </div>
 
-<script>
-  const params = new URLSearchParams(window.location.search);
-  const emotion = params.get('emotion') || 'calm';
-  const thought = decodeURIComponent(params.get('thought') || 'Your thought here');
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const emotion = params.get('emotion') || 'calm';
+    const thought = decodeURIComponent(params.get('thought') || 'Your thought here');
 
-  const bagImage = document.getElementById('bagImage');
-  const thoughtText = document.getElementById('thoughtText');
-  const overlay = document.getElementById('effectOverlay');
-  const thoughtBox = document.getElementById('thoughtBox');
+    const bagImage = document.getElementById('bagImage');
+    const textureOverlay = document.getElementById('textureOverlay');
+    const thoughtText = document.getElementById('thoughtText');
+    const thoughtBox = document.getElementById('thoughtBox');
+    const bagName = document.getElementById('bagName');
 
-  const bagImages = Array.from({length: 4}, (_, i) => `images/${emotion.toLowerCase()}/bag_${emotion.toLowerCase()}_${i+1}.jpg`);
-  let currentIndex = 0;
+    const bagImages = Array.from({ length: 4 }, (_, i) => `images/${emotion.toLowerCase()}/bag_${emotion.toLowerCase()}_${i + 1}.png`);
+    const bagNames = ['Tote', 'Pochette', 'Duffel', 'Baguette'];
+    let currentIndex = 0;
 
-  function updateBagImage() {
-    bagImage.src = bagImages[currentIndex];
-  }
+    function updateBagImage() {
+      const newSrc = bagImages[currentIndex];
+      bagImage.src = newSrc;
+      bagName.textContent = bagNames[currentIndex];
 
-  function nextImage() {
-    currentIndex = (currentIndex + 1) % bagImages.length;
+      // fade animation
+      bagName.classList.remove('fade-in');
+      void bagName.offsetWidth; // trigger reflow
+      bagName.classList.add('fade-in');
+
+      // If a texture is applied, remask it
+      if (textureOverlay.style.display === 'block') {
+        textureOverlay.style.maskImage = `url(${newSrc})`;
+        textureOverlay.style.webkitMaskImage = `url(${newSrc})`;
+      }
+    }
+
+    function nextImage() {
+      currentIndex = (currentIndex + 1) % bagImages.length;
+      updateBagImage();
+    }
+
+    function prevImage() {
+      currentIndex = (currentIndex - 1 + bagImages.length) % bagImages.length;
+      updateBagImage();
+    }
+
     updateBagImage();
-  }
+    thoughtBox.textContent = thought;
 
-  function prevImage() {
-    currentIndex = (currentIndex - 1 + bagImages.length) % bagImages.length;
-    updateBagImage();
-  }
+    thoughtBox.addEventListener('click', () => {
+      thoughtText.textContent = thoughtBox.textContent;
+      thoughtText.style.display = 'block';
+    });
 
-  updateBagImage();
-  thoughtBox.textContent = thought;
+    thoughtText.addEventListener('dragstart', e => {
+      const rect = thoughtText.getBoundingClientRect();
+      e.dataTransfer.setData('offsetX', e.clientX - rect.left);
+      e.dataTransfer.setData('offsetY', e.clientY - rect.top);
+    });
 
-  thoughtBox.addEventListener('click', () => {
-    thoughtText.textContent = thoughtBox.textContent;
-    thoughtText.style.display = 'block';
-  });
+    const bagContainer = document.getElementById('bagContainer');
+    bagContainer.addEventListener('dragover', e => e.preventDefault());
+    bagContainer.addEventListener('drop', e => {
+      e.preventDefault();
+      const offsetX = parseInt(e.dataTransfer.getData('offsetX'));
+      const offsetY = parseInt(e.dataTransfer.getData('offsetY'));
+      const newX = e.clientX - bagContainer.offsetLeft - offsetX;
+      const newY = e.clientY - bagContainer.offsetTop - offsetY;
+      thoughtText.style.left = newX + 'px';
+      thoughtText.style.top = newY + 'px';
+      thoughtText.style.transform = 'translate(0, 0)';
+    });
 
-  thoughtText.addEventListener('dragstart', e => {
-    const rect = thoughtText.getBoundingClientRect();
-    e.dataTransfer.setData('offsetX', e.clientX - rect.left);
-    e.dataTransfer.setData('offsetY', e.clientY - rect.top);
-  });
+    function setTexture(name) {
+      const textureURL = `images/effects/${name}.png`;
+      const maskURL = bagImage.src;
 
-  const bagContainer = document.getElementById('bagContainer');
-  bagContainer.addEventListener('dragover', e => e.preventDefault());
-  bagContainer.addEventListener('drop', e => {
-    e.preventDefault();
-    const offsetX = parseInt(e.dataTransfer.getData('offsetX'));
-    const offsetY = parseInt(e.dataTransfer.getData('offsetY'));
-    const newX = e.clientX - bagContainer.offsetLeft - offsetX;
-    const newY = e.clientY - bagContainer.offsetTop - offsetY;
-    thoughtText.style.left = newX + 'px';
-    thoughtText.style.top = newY + 'px';
-    thoughtText.style.transform = 'translate(0, 0)';
-  });
+      textureOverlay.style.display = 'block';
+      textureOverlay.style.backgroundImage = `url(${textureURL})`;
 
- function setTexture(name) {
-  const textureOverlay = document.getElementById('textureOverlay');
-  textureOverlay.src = `images/effects/${name}.png`;
-  textureOverlay.style.display = 'block';
-}
+      // Apply the mask using the current bag shape
+      textureOverlay.style.maskImage = `url(${maskURL})`;
+      textureOverlay.style.webkitMaskImage = `url(${maskURL})`;
+    }
 
-function removeTexture() {
-  const textureOverlay = document.getElementById('textureOverlay');
-  textureOverlay.src = '';
-  textureOverlay.style.display = 'none';
-}
-</script>
+    function removeTexture() {
+      textureOverlay.style.display = 'none';
+      textureOverlay.style.backgroundImage = '';
+      textureOverlay.style.maskImage = '';
+      textureOverlay.style.webkitMaskImage = '';
+    }
+  </script>
 </body>
 </html>
