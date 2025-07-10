@@ -359,59 +359,106 @@ function downloadBag() {
   canvas.height = height;
   const ctx = canvas.getContext('2d');
 
-  // 1. Sfondo bianco
+  // Sfondo bianco
   ctx.fillStyle = 'white';
   ctx.fillRect(0, 0, width, height);
 
-  // 2. Carico immagine borsa
+  // Carico immagine borsa
   const bagImg = new Image();
+  bagImg.crossOrigin = 'anonymous';
   bagImg.src = bagImages[currentIndex];
+
   bagImg.onload = () => {
-    // disegna borsa grande al centro
+    // Disegna la borsa
     ctx.drawImage(bagImg, 0, 0, width, height * 0.8);
 
-    // 3. Maschera texture solo dentro la borsa
     if (textureOverlay.style.display === 'block') {
       const textureImg = new Image();
-         textureImg.crossOrigin = 'anonymous';
-      textureImg.src = textureOverlay.style.backgroundImage.slice(5, -2); // togli url("...")
+      textureImg.crossOrigin = 'anonymous';
+      textureImg.src = textureOverlay.style.backgroundImage.slice(5, -2);
 
       textureImg.onload = () => {
         ctx.save();
-        ctx.globalCompositeOperation = 'source-atop'; 
-        ctx.drawImage(textureImg, 0, 0, width, height * 0.8);
+
+        // Creiamo un clipping usando la borsa: 
+        // Il canvas non ha maskImage, quindi useremo la trasparenza dell'immagine
+        // Impostiamo composizione per sovrascrivere solo la parte trasparente
+        ctx.globalCompositeOperation = 'source-atop';
+
+        // Ora disegniamo la texture *come nello stile CSS* del div:
+
+        // 1. Ottieni le dimensioni e posizioni della texture dal div
+        const bgSize = window.getComputedStyle(textureOverlay).backgroundSize; // es. "80px 80px"
+        const bgPos = window.getComputedStyle(textureOverlay).backgroundPosition; // es. "center" o "0px 0px"
+        const bgRepeat = window.getComputedStyle(textureOverlay).backgroundRepeat; // es. "repeat"
+
+        // Parse background-size
+        let [bgWidth, bgHeight] = bgSize.split(' ').map(s => {
+          if (s.endsWith('px')) return parseFloat(s);
+          else return width; // fallback
+        });
+
+        // Posizione (se 'center', calcolo offset)
+        let offsetX = 0, offsetY = 0;
+        if (bgPos === 'center') {
+          offsetX = (width - bgWidth) / 2;
+          offsetY = (height * 0.8 - bgHeight) / 2;
+        } else {
+          const posSplit = bgPos.split(' ');
+          offsetX = parseFloat(posSplit[0]) || 0;
+          offsetY = parseFloat(posSplit[1]) || 0;
+        }
+
+        // Ora disegniamo la texture ripetuta esattamente come il div
+
+        // Per semplicità, disegniamo la texture più volte con loop per coprire tutta l’area borsa (width x height*0.8)
+
+        for (let y = 0; y < height * 0.8; y += bgHeight) {
+          for (let x = 0; x < width; x += bgWidth) {
+            ctx.drawImage(textureImg, x + offsetX, y + offsetY, bgWidth, bgHeight);
+          }
+        }
+
         ctx.restore();
 
-        // Disegna il testo pensiero sopra la borsa (come posizionato dall’utente)
-           drawThoughtText();
+        // Disegniamo il testo (pensiero) sopra la borsa
+        drawThoughtText(ctx, bagImg, width, height);
 
-        saveCanvas();
+        // Scarica immagine
+        saveCanvas(canvas);
       };
     } else {
-      // Nessuna texture, disegna solo borsa + testo
-      drawThoughtTextOnCanvas(ctx);
-      saveCanvasImage(canvas);
+      // Se non c’è texture, disegna solo il testo e salva
+      drawThoughtText(ctx, bagImg, width, height);
+      saveCanvas(canvas);
     }
   };
 
-  function drawThoughtText() {
+  // Funzione per disegnare il testo con posizione e font uguali a quelli nel div
+  function drawThoughtText(ctx, bagImg, width, height) {
     const thoughtStyle = window.getComputedStyle(thoughtText);
     ctx.fillStyle = thoughtStyle.color || 'white';
     ctx.font = `${thoughtStyle.fontSize} ${thoughtStyle.fontFamily}`;
     ctx.textBaseline = 'top';
 
+    // Calcola posizione relativa
     const bagRect = bagImage.getBoundingClientRect();
     const thoughtRect = thoughtText.getBoundingClientRect();
 
     const x = thoughtRect.left - bagRect.left;
     const y = thoughtRect.top - bagRect.top;
 
-     ctx.shadowColor = 'rgba(255,255,255,0.8)';
+    // Aggiungo ombra/glow testo
+    ctx.shadowColor = 'rgba(255,255,255,0.8)';
     ctx.shadowBlur = 8;
+
     ctx.fillText(thoughtText.textContent.trim(), x, y);
+
+    ctx.shadowBlur = 0;
   }
 
- function saveCanvas() {
+  // Funzione per salvare il canvas come immagine
+  function saveCanvas(canvas) {
     const dataURL = canvas.toDataURL('image/png');
     const link = document.createElement('a');
     link.href = dataURL;
@@ -419,6 +466,7 @@ function downloadBag() {
     link.click();
   }
 }
+
 
   window.onload = () => {
     console.log('Page loaded');
