@@ -373,18 +373,19 @@ function downloadBag() {
     // 3. Maschera texture solo dentro la borsa
     if (textureOverlay.style.display === 'block') {
       const textureImg = new Image();
+         textureImg.crossOrigin = 'anonymous';
       textureImg.src = textureOverlay.style.backgroundImage.slice(5, -2); // togli url("...")
 
       textureImg.onload = () => {
         ctx.save();
-        ctx.globalCompositeOperation = 'source-in';
+        ctx.globalCompositeOperation = 'source-atop'; 
         ctx.drawImage(textureImg, 0, 0, width, height * 0.8);
         ctx.restore();
 
         // Disegna il testo pensiero sopra la borsa (come posizionato dall’utente)
-        drawThoughtTextOnCanvas(ctx);
+           drawThoughtText();
 
-        saveCanvasImage(canvas);
+        saveCanvas();
       };
     } else {
       // Nessuna texture, disegna solo borsa + testo
@@ -393,7 +394,7 @@ function downloadBag() {
     }
   };
 
-  function drawThoughtTextOnCanvas(ctx) {
+  function drawThoughtText() {
     const thoughtStyle = window.getComputedStyle(thoughtText);
     ctx.fillStyle = thoughtStyle.color || 'white';
     ctx.font = `${thoughtStyle.fontSize} ${thoughtStyle.fontFamily}`;
@@ -405,10 +406,12 @@ function downloadBag() {
     const x = thoughtRect.left - bagRect.left;
     const y = thoughtRect.top - bagRect.top;
 
+     ctx.shadowColor = 'rgba(255,255,255,0.8)';
+    ctx.shadowBlur = 8;
     ctx.fillText(thoughtText.textContent.trim(), x, y);
   }
 
-  function saveCanvasImage(canvas) {
+ function saveCanvas() {
     const dataURL = canvas.toDataURL('image/png');
     const link = document.createElement('a');
     link.href = dataURL;
