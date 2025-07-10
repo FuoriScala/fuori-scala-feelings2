@@ -350,82 +350,30 @@
       window.open(url, "_blank");
     }
 
+    // Nuova funzione aggiornata downloadBag con glow e box info a lato
     function downloadBag() {
-      const width = 360;
+      const width = 600;  // canvas più largo per box info a destra
       const height = 480;
       const canvas = document.createElement('canvas');
       canvas.width = width;
       canvas.height = height;
       const ctx = canvas.getContext('2d');
 
-      // 1. Sfondo bianco
+      // Sfondo bianco
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, width, height);
 
-      // 2. Carico immagine borsa
       const bagImg = new Image();
       bagImg.crossOrigin = "anonymous";
       bagImg.src = bagImages[currentIndex];
 
       bagImg.onload = () => {
-        // disegna borsa grande al centro
-        ctx.drawImage(bagImg, 0, 0, width, height * 0.8);
+        // Disegna la borsa (360x480)
+        ctx.drawImage(bagImg, 0, 0, 360, 480);
 
-        // 3. Se c'è texture attiva la disegno solo dentro la borsa con maschera
         if (textureOverlay.style.display === 'block') {
           const textureImg = new Image();
           textureImg.crossOrigin = "anonymous";
           const bgUrl = textureOverlay.style.backgroundImage;
-          const textureUrl = bgUrl.slice(bgUrl.indexOf('url(') + 4, bgUrl.lastIndexOf(')')).replace(/"/g, '');
-          textureImg.src = textureUrl;
-
-          textureImg.onload = () => {
-            ctx.save();
-            // crea clip maschera dalla forma della borsa (con alpha)
-            ctx.globalCompositeOperation = 'source-in';
-            ctx.drawImage(textureImg, 0, 0, width, height * 0.8);
-            ctx.restore();
-
-            // 4. Testo sotto borsa, centrato e piccolo
-            drawInfoText(ctx, width, height);
-          };
-
-          textureImg.onerror = () => {
-            // fallback: disegna solo testo se la texture non carica
-            drawInfoText(ctx, width, height);
-          };
-
-        } else {
-          // nessuna texture, solo testo
-          drawInfoText(ctx, width, height);
-        }
-      };
-
-      bagImg.onerror = () => {
-        alert("Error loading bag image for download.");
-      };
-    }
-
-    function drawInfoText(ctx, width, height) {
-      ctx.fillStyle = '#c2185b';
-      ctx.font = '16px cursive';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'top';
-      const infoText = `Emotion: ${emotion}   Bag: ${bagNames[currentIndex]}   Thought: "${thoughtText.textContent.trim()}"`;
-      ctx.fillText(infoText, width / 2, height * 0.82);
-
-      // Scarica immagine
-      const dataURL = ctx.canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = dataURL;
-      link.download = `Moody_Bag_${bagNames[currentIndex]}.png`;
-      link.click();
-    }
-
-    // Initial
-    updateBagImage();
-    thoughtText.textContent = thought;
-  </script>
-</body>
-</html>
+          const textureUrl = bgUrl.slice(bgUrl.indexOf('url(') +
 
