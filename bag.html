@@ -415,14 +415,14 @@ function downloadBag() {
     link.download = `Moody_Bag_${bagNames[currentIndex]}.png`;
     link.click();
   }
-};
 }
 
-window.onload = () => {
-  console.log('Page loaded');
-  updateBagImage();
-  thoughtText.textContent = thought;
-  console.log('Bag image src:', bagImage.src);
+  window.onload = () => {
+    console.log('Page loaded');
+    updateBagImage();
+    thoughtText.textContent = thought;
+    console.log('Bag image src:', bagImage.src);
+  };
   </script>
 </body>
 </html>
