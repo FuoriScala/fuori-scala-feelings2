@@ -80,6 +80,9 @@
       margin-bottom: 10px;
       opacity: 0;
       transition: opacity 0.5s ease-in-out;
+      text-align: center;
+      width: 360px;
+      max-width: 90vw;
     }
 
     .fade-in {
@@ -118,6 +121,9 @@
       background: none !important;
       box-shadow: none !important;
       transition: top 0.15s linear, left 0.15s linear;
+      cursor: move;
+      user-select: text;
+      white-space: pre-wrap;
     }
 
     .controls-wrapper {
@@ -203,7 +209,7 @@
     <div class="bag-stack" id="captureArea">
       <img id="bagImage" src="" alt="Moody Bag" />
       <div id="textureOverlay"></div>
-      <div id="thoughtText" contenteditable="true"></div>
+      <div id="thoughtText" contenteditable="true" spellcheck="false"></div>
     </div>
   </div>
 
@@ -280,6 +286,17 @@
     const bagNames = ['Tote', 'Pochette', 'Duffel', 'Baguette'];
     let currentIndex = 0;
 
+    // Colors for emotions (adjust as needed)
+    const emotionColors = {
+      joy: '#ff5722',
+      sadness: '#2196f3',
+      anger: '#d32f2f',
+      fear: '#673ab7',
+      calm: '#4caf50',
+      love: '#e91e63',
+      default: '#c2185b'
+    };
+
     function updateBagImage() {
       const newSrc = bagImages[currentIndex];
       bagImage.src = newSrc;
@@ -304,12 +321,22 @@
     }
 
     function moveText(dx, dy) {
-      const rect = thoughtText.getBoundingClientRect();
+      // Get current left and top relative to #bagContainer
       const parentRect = bagImage.getBoundingClientRect();
-      const currentLeft = rect.left - parentRect.left;
-      const currentTop = rect.top - parentRect.top;
-      thoughtText.style.left = (currentLeft + dx) + 'px';
-      thoughtText.style.top = (currentTop + dy) + 'px';
+      const thoughtRect = thoughtText.getBoundingClientRect();
+
+      const offsetX = thoughtRect.left - parentRect.left;
+      const offsetY = thoughtRect.top - parentRect.top;
+
+      const newLeft = offsetX + dx;
+      const newTop = offsetY + dy;
+
+      // Limit movement inside bag container area (optional)
+      const maxLeft = parentRect.width - thoughtText.offsetWidth;
+      const maxTop = parentRect.height - thoughtText.offsetHeight;
+
+      thoughtText.style.left = Math.min(Math.max(newLeft, 0), maxLeft) + 'px';
+      thoughtText.style.top = Math.min(Math.max(newTop, 0), maxTop) + 'px';
     }
 
     function changeFont(font) {
@@ -350,16 +377,34 @@
       window.open(url, "_blank");
     }
 
-    // Nuova funzione aggiornata downloadBag con glow e box info a lato
+    // Helper to wrap text for canvas
+    function wrapText(ctx, text, maxWidth) {
+      const words = text.split(' ');
+      let lines = [];
+      let currentLine = words[0];
+
+      for (let i = 1; i < words.length; i++) {
+        let word = words[i];
+        let width = ctx.measureText(currentLine + ' ' + word).width;
+        if (width < maxWidth) {
+          currentLine += ' ' + word;
+        } else {
+          lines.push(currentLine);
+          currentLine = word;
+        }
+      }
+      lines.push(currentLine);
+      return lines;
+    }
+
     function downloadBag() {
-      const width = 600;  // canvas più largo per box info a destra
-      const height = 480;
+      const width = 600;  // canvas width for bag + info area
+      const height = 580; // 480 bag height + 100 info area
       const canvas = document.createElement('canvas');
       canvas.width = width;
       canvas.height = height;
       const ctx = canvas.getContext('2d');
 
-      // Sfondo bianco
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, width, height);
 
@@ -368,12 +413,108 @@
       bagImg.src = bagImages[currentIndex];
 
       bagImg.onload = () => {
-        // Disegna la borsa (360x480)
+        // Draw bag on left top corner (360x480)
         ctx.drawImage(bagImg, 0, 0, 360, 480);
 
+        // Draw texture if active
         if (textureOverlay.style.display === 'block') {
           const textureImg = new Image();
           textureImg.crossOrigin = "anonymous";
           const bgUrl = textureOverlay.style.backgroundImage;
-          const textureUrl = bgUrl.slice(bgUrl.indexOf('url(') +
+          const textureUrl = bgUrl.slice(bgUrl.indexOf('url(') + 4, bgUrl.lastIndexOf(')')).replace(/"/g, '');
+          textureImg.src = textureUrl;
 
+          textureImg.onload = () => {
+            ctx.save();
+            ctx.globalCompositeOperation = 'source-in';
+            ctx.drawImage(textureImg, 0, 0, 360, 480);
+            ctx.restore();
+
+            drawTextAndInfo();
+          };
+
+          textureImg.onerror = () => {
+            drawTextAndInfo();
+          };
+        } else {
+          drawTextAndInfo();
+        }
+
+        function drawTextAndInfo() {
+          // Calculate relative position of thought text inside bag container
+          const parentRect = bagImage.getBoundingClientRect();
+          const thoughtRect = thoughtText.getBoundingClientRect();
+
+          const leftRel = thoughtRect.left - parentRect.left;
+          const topRel = thoughtRect.top - parentRect.top;
+
+          // Draw glowing thought text multiline
+          ctx.font = `${parseInt(window.getComputedStyle(thoughtText).fontSize)}px ${window.getComputedStyle(thoughtText).fontFamily}`;
+          ctx.textBaseline = 'top';
+
+          ctx.shadowColor = 'rgba(255,255,255,0.8)';
+          ctx.shadowBlur = 8;
+          ctx.fillStyle = 'white';
+
+          const maxTextWidth = 290;
+          const lines = wrapText(ctx, thoughtText.textContent.trim(), maxTextWidth);
+
+          let y = topRel;
+          for (const line of lines) {
+            ctx.fillText(line, leftRel, y);
+            y += parseInt(window.getComputedStyle(thoughtText).fontSize) * 1.2;
+          }
+
+          ctx.shadowColor = 'transparent';
+
+          // Draw info box below bag on left (360x100)
+          const boxX = 0;
+          const boxY = 480 + 10;
+          const baseColor = emotionColors[emotion.toLowerCase()] || emotionColors.default;
+
+          ctx.font = '18px Arial Rounded MT Bold, sans-serif';
+          ctx.fillStyle = baseColor;
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'top';
+
+          const lineHeight = 24;
+          let infoY = boxY;
+
+          ctx.fillText(`Emotion: ${emotion.charAt(0).toUpperCase() + emotion.slice(1)}`, boxX + 10, infoY);
+          infoY += lineHeight + 4;
+          ctx.fillText(`Bag: ${bagNames[currentIndex]}`, boxX + 10, infoY);
+          infoY += lineHeight + 4;
+
+          const infoMaxWidth = 340;
+          const thoughtLines = wrapText(ctx, `"${thoughtText.textContent.trim()}"`, infoMaxWidth);
+
+          for (const line of thoughtLines) {
+            ctx.fillText(line, boxX + 10, infoY);
+            infoY += lineHeight;
+          }
+
+          // Save canvas as image
+          const link = document.createElement('a');
+          link.download = `MoodyBag_${bagNames[currentIndex]}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        }
+      };
+
+      bagImg.onerror = () => {
+        alert("Error loading bag image.");
+      };
+    }
+
+    // Initialize page
+    window.onload = () => {
+      updateBagImage();
+      thoughtText.textContent = thought;
+      thoughtText.style.left = '10%';
+      thoughtText.style.top = '60%';
+      thoughtText.style.fontFamily = "'Arial Rounded MT Bold', sans-serif";
+      thoughtText.style.fontSize = '16px';
+    };
+  </script>
+</body>
+</html>
