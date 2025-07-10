@@ -6,17 +6,13 @@
   <title>Your Moody Bag</title>
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
       min-height: 100vh;
       font-family: 'Arial Rounded MT Bold', sans-serif;
       background: linear-gradient(-45deg, #fce4ec, #f8bbd0, #fce4ec, #f8bbd0);
       background-size: 400% 400%;
       animation: gradientShift 10s ease infinite;
       color: #333;
-    }
-
-    body {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -39,7 +35,6 @@
       font-size: 1.2rem;
       margin-top: 40px;
       color: #555;
-      text-align: center;
     }
 
     #bagContainer {
@@ -64,7 +59,8 @@
 
     #textureOverlay {
       position: absolute;
-      top: 0; left: 0;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
       pointer-events: none;
@@ -85,7 +81,6 @@
       font-size: 1.2rem;
       color: #c2185b;
       margin-bottom: 10px;
-      text-align: center;
       opacity: 0;
       transition: opacity 0.5s ease-in-out;
     }
@@ -117,27 +112,59 @@
       font-weight: bold;
       color: white;
       background: rgba(0, 0, 0, 0.4);
-      padding: 10px 14px;
+      padding: 8px 10px;
       border-radius: 8px;
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
-      cursor: move;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+      max-width: 80%;
+      top: 60%;
+      left: 10%;
+      z-index: 5;
       resize: both;
       overflow: auto;
-      min-width: 60px;
-      min-height: 30px;
-      max-width: 90%;
-      z-index: 20;
-      left: 50px;
-      top: 120px;
-      display: block;
+    }
+
+    .controls-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+      gap: 10px;
+    }
+
+    .arrow-controls {
+      display: grid;
+      grid-template-columns: 40px 40px 40px;
+      grid-template-rows: 40px 40px 40px;
+      gap: 4px;
+    }
+
+    .arrow-controls button {
+      background: #fff;
+      border: 2px solid #c2185b;
+      color: #c2185b;
+      font-size: 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .font-select {
+      margin-top: 10px;
+    }
+
+    select {
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #999;
+      font-size: 1rem;
     }
 
     .texture-picker {
       display: flex;
       justify-content: center;
-      flex-wrap: wrap;
       gap: 10px;
-      padding: 40px 20px;
+      margin: 40px auto;
+      flex-wrap: wrap;
+      padding-bottom: 60px;
     }
 
     .texture-picker button {
@@ -152,22 +179,6 @@
     .texture-picker button:hover {
       background: #ddd;
     }
-
-    #fontSelector {
-      margin: 10px auto;
-      text-align: center;
-    }
-
-    select {
-      padding: 6px 12px;
-      border-radius: 6px;
-      border: 1px solid #aaa;
-      font-family: inherit;
-    }
-
-    .page-footer {
-      height: 50px;
-    }
   </style>
 </head>
 <body>
@@ -178,7 +189,7 @@
     <div class="bag-stack">
       <img id="bagImage" src="" alt="Moody Bag" />
       <div id="textureOverlay"></div>
-      <div id="thoughtText" contenteditable="true" spellcheck="false"></div>
+      <div id="thoughtText" contenteditable="true"></div>
     </div>
   </div>
 
@@ -189,6 +200,30 @@
     <button onclick="nextImage()">&#10095;</button>
   </div>
 
+  <div class="controls-wrapper">
+    <div class="arrow-controls">
+      <div></div>
+      <button onclick="moveText(0, -5)">⬆️</button>
+      <div></div>
+      <button onclick="moveText(-5, 0)">⬅️</button>
+      <div></div>
+      <button onclick="moveText(5, 0)">➡️</button>
+      <div></div>
+      <button onclick="moveText(0, 5)">⬇️</button>
+    </div>
+
+    <div class="font-select">
+      <label>Choose your font: </label>
+      <select id="fontSelector" onchange="changeFont(this.value)">
+        <option value="'Arial Rounded MT Bold', sans-serif">Rounded</option>
+        <option value="Georgia, serif">Serif</option>
+        <option value="Courier New, monospace">Monospace</option>
+        <option value="Comic Sans MS, cursive">Comic</option>
+        <option value="Verdana, sans-serif">Verdana</option>
+      </select>
+    </div>
+  </div>
+
   <div class="section-title">Choose your bag texture</div>
   <div class="texture-picker">
     <button onclick="setTexture('woven')">🧶 Woven</button>
@@ -196,29 +231,16 @@
     <button onclick="setTexture('skulls')">💀 Skulls</button>
     <button onclick="setTexture('diagmonds')">🔷 Diagmonds</button>
     <button onclick="setTexture('food')">🍽️ Food</button>
-    <button onclick="setTexture('football-no-lines')">🏈 Football no lines</button>
-    <button onclick="setTexture('my-little-plaid-dark')">🧵 My little plaid dark</button>
+    <button onclick="setTexture('football-no-lines')">🏈 Football</button>
+    <button onclick="setTexture('my-little-plaid-dark')">🧵 Plaid</button>
     <button onclick="setTexture('robots')">🤖 Robots</button>
     <button onclick="setTexture('escheresque-dark')">🌀 Escher</button>
-    <button onclick="setTexture('cartographer')">🗺️ Cartographer</button>
+    <button onclick="setTexture('cartographer')">🗺️ Map</button>
     <button onclick="setTexture('argyle')">👔 Argyle</button>
     <button onclick="setTexture('basketball')">🏀 Basketball</button>
-    <button onclick="setTexture('dark-mosaic')">🧩 Dark mosaic</button>
-    <button onclick="removeTexture()">❌ Remove Texture</button>
+    <button onclick="setTexture('dark-mosaic')">🧩 Mosaic</button>
+    <button onclick="removeTexture()">❌ Remove</button>
   </div>
-
-  <div class="section-title">Choose your thought font</div>
-  <div id="fontSelector">
-    <select id="fontDropdown">
-      <option value="'Arial Rounded MT Bold', sans-serif">Rounded</option>
-      <option value="'Courier New', monospace">Courier</option>
-      <option value="'Georgia', serif">Georgia</option>
-      <option value="'Comic Sans MS', cursive">Comic Sans</option>
-      <option value="'Times New Roman', serif">Times</option>
-    </select>
-  </div>
-
-  <div class="page-footer"></div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -229,7 +251,6 @@
     const textureOverlay = document.getElementById('textureOverlay');
     const thoughtText = document.getElementById('thoughtText');
     const bagName = document.getElementById('bagName');
-    const fontDropdown = document.getElementById('fontDropdown');
 
     const bagImages = Array.from({ length: 4 }, (_, i) => `images/${emotion}/bag_${emotion}_${i + 1}.png`);
     const bagNames = ['Tote', 'Pochette', 'Duffel', 'Baguette'];
@@ -242,21 +263,10 @@
       bagName.classList.remove('fade-in');
       void bagName.offsetWidth;
       bagName.classList.add('fade-in');
-
       if (textureOverlay.style.display === 'block') {
         textureOverlay.style.maskImage = `url(${newSrc})`;
         textureOverlay.style.webkitMaskImage = `url(${newSrc})`;
       }
-
-      // Optional: Adjust position/size per bag
-      const presetPositions = [
-        { left: '50px', top: '120px' },
-        { left: '40px', top: '100px' },
-        { left: '60px', top: '140px' },
-        { left: '30px', top: '110px' }
-      ];
-      thoughtText.style.left = presetPositions[currentIndex].left;
-      thoughtText.style.top = presetPositions[currentIndex].top;
     }
 
     function nextImage() {
@@ -269,19 +279,29 @@
       updateBagImage();
     }
 
+    function moveText(dx, dy) {
+      const currentLeft = parseInt(thoughtText.style.left || '0');
+      const currentTop = parseInt(thoughtText.style.top || '0');
+      thoughtText.style.left = (currentLeft + dx) + 'px';
+      thoughtText.style.top = (currentTop + dy) + 'px';
+    }
+
+    function changeFont(font) {
+      thoughtText.style.fontFamily = font;
+    }
+
     function setTexture(name) {
       const textureURL = `images/effects/${name}.png`;
       const maskURL = bagImage.src;
-
       textureOverlay.style.display = 'block';
       textureOverlay.style.backgroundImage = `url(${textureURL})`;
       textureOverlay.style.maskImage = `url(${maskURL})`;
       textureOverlay.style.webkitMaskImage = `url(${maskURL})`;
-
       let size = '80px 80px';
       if (name === 'dark-mosaic') size = '60px 60px';
       if (name === 'starring') size = '70px 70px';
-      if (name === 'cartographer' || name === 'skulls') size = '300px 300px';
+      if (name === 'cartographer') size = '300px 300px';
+      if (name === 'skulls') size = '300px 300px';
       if (name === 'argyle') size = '65px 65px';
       if (name === 'escheresque-dark') size = '30px 30px';
       textureOverlay.style.backgroundSize = size;
@@ -294,22 +314,9 @@
       textureOverlay.style.webkitMaskImage = '';
     }
 
-    fontDropdown.addEventListener('change', () => {
-      thoughtText.style.fontFamily = fontDropdown.value;
-    });
-
-    document.addEventListener('keydown', (e) => {
-      const step = 2;
-      const top = parseInt(thoughtText.style.top || 0);
-      const left = parseInt(thoughtText.style.left || 0);
-      if (e.key === "ArrowUp") thoughtText.style.top = (top - step) + "px";
-      if (e.key === "ArrowDown") thoughtText.style.top = (top + step) + "px";
-      if (e.key === "ArrowLeft") thoughtText.style.left = (left - step) + "px";
-      if (e.key === "ArrowRight") thoughtText.style.left = (left + step) + "px";
-    });
-
-    thoughtText.textContent = thought;
+    // Initial setup
     updateBagImage();
+    thoughtText.textContent = thought;
   </script>
 </body>
 </html>
