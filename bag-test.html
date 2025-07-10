@@ -266,7 +266,6 @@
     <button onclick="downloadBag()">💾 Save Your Bag</button>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
     const params = new URLSearchParams(window.location.search);
     const emotion = params.get('emotion') || 'calm';
@@ -352,15 +351,75 @@
     }
 
     function downloadBag() {
-      const area = document.getElementById("captureArea");
-      html2canvas(area).then(canvas => {
-        const link = document.createElement("a");
-        const name = bagNames[currentIndex];
-        const blob = canvas.toDataURL();
-        link.download = `Moody_Bag_${name}.png`;
-        link.href = blob;
-        link.click();
-      });
+      const width = 360;
+      const height = 480;
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+
+      // 1. Sfondo bianco
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, width, height);
+
+      // 2. Carico immagine borsa
+      const bagImg = new Image();
+      bagImg.crossOrigin = "anonymous";
+      bagImg.src = bagImages[currentIndex];
+
+      bagImg.onload = () => {
+        // disegna borsa grande al centro
+        ctx.drawImage(bagImg, 0, 0, width, height * 0.8);
+
+        // 3. Se c'è texture attiva la disegno solo dentro la borsa con maschera
+        if (textureOverlay.style.display === 'block') {
+          const textureImg = new Image();
+          textureImg.crossOrigin = "anonymous";
+          const bgUrl = textureOverlay.style.backgroundImage;
+          const textureUrl = bgUrl.slice(bgUrl.indexOf('url(') + 4, bgUrl.lastIndexOf(')')).replace(/"/g, '');
+          textureImg.src = textureUrl;
+
+          textureImg.onload = () => {
+            ctx.save();
+            // crea clip maschera dalla forma della borsa (con alpha)
+            ctx.globalCompositeOperation = 'source-in';
+            ctx.drawImage(textureImg, 0, 0, width, height * 0.8);
+            ctx.restore();
+
+            // 4. Testo sotto borsa, centrato e piccolo
+            drawInfoText(ctx, width, height);
+          };
+
+          textureImg.onerror = () => {
+            // fallback: disegna solo testo se la texture non carica
+            drawInfoText(ctx, width, height);
+          };
+
+        } else {
+          // nessuna texture, solo testo
+          drawInfoText(ctx, width, height);
+        }
+      };
+
+      bagImg.onerror = () => {
+        alert("Error loading bag image for download.");
+      };
+    }
+
+    function drawInfoText(ctx, width, height) {
+      ctx.fillStyle = '#c2185b';
+      ctx.font = '16px cursive';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      const infoText = `Emotion: ${emotion}   Bag: ${bagNames[currentIndex]}   Thought: "${thoughtText.textContent.trim()}"`;
+      ctx.fillText(infoText, width / 2, height * 0.82);
+
+      // Scarica immagine
+      const dataURL = ctx.canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = dataURL;
+      link.download = `Moody_Bag_${bagNames[currentIndex]}.png`;
+      link.click();
     }
 
     // Initial
@@ -369,3 +428,4 @@
   </script>
 </body>
 </html>
+
