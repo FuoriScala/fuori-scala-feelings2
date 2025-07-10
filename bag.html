@@ -268,16 +268,16 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
-    const params = new URLSearchParams(window.location.search);
-  const emotion = (params.get('emotion') || 'calm').toLowerCase();
-    const thought = decodeURIComponent(params.get('thought') || 'Your thought here');
+   const params = new URLSearchParams(window.location.search);
+const emotion = (params.get('emotion') || 'calm').toLowerCase();
+const thought = decodeURIComponent(params.get('thought') || 'Your thought here');
 
     const bagImage = document.getElementById('bagImage');
     const textureOverlay = document.getElementById('textureOverlay');
     const thoughtText = document.getElementById('thoughtText');
     const bagName = document.getElementById('bagName');
 
-    const bagImages = Array.from({ length: 4 }, (_, i) => `images/${emotion}/bag_${emotion}_${i + 1}.png`);
+   const bagImages = Array.from({ length: 4 }, (_, i) => `images/${emotion}/bag_${emotion}_${i + 1}.png`);
     const bagNames = ['Tote', 'Pochette', 'Duffel', 'Baguette'];
     let currentIndex = 0;
 
