@@ -363,44 +363,53 @@ function downloadBag() {
   ctx.fillStyle = 'white';
   ctx.fillRect(0, 0, width, height);
 
-  // Carico immagine borsa
   const bagImg = new Image();
   bagImg.crossOrigin = 'anonymous';
   bagImg.src = bagImages[currentIndex];
 
   bagImg.onload = () => {
-    ctx.drawImage(bagImg, 0, 0, width, height * 0.8);
-
     if (textureOverlay.style.display === 'block') {
       const textureImg = new Image();
       textureImg.crossOrigin = 'anonymous';
       textureImg.src = textureOverlay.style.backgroundImage.slice(5, -2);
 
       textureImg.onload = () => {
-        ctx.save();
+        // Crea canvas temporaneo per applicare la maschera
+        const maskCanvas = document.createElement('canvas');
+        maskCanvas.width = width;
+        maskCanvas.height = height * 0.8;
+        const maskCtx = maskCanvas.getContext('2d');
 
-        // Clip con la forma della borsa
-        ctx.globalCompositeOperation = 'source-in';
+        // 1. Disegna la borsa come maschera
+        maskCtx.drawImage(bagImg, 0, 0, width, height * 0.8);
 
-        // Crea pattern ripetuto
-        const pattern = ctx.createPattern(textureImg, 'repeat');
-        ctx.fillStyle = pattern;
-        ctx.fillRect(0, 0, width, height * 0.8);
+        // 2. Imposta la modalità di mascheramento
+        maskCtx.globalCompositeOperation = 'source-in';
 
-        ctx.restore();
+        // 3. Applica texture ripetuta come pattern
+        const pattern = maskCtx.createPattern(textureImg, 'repeat');
+        maskCtx.fillStyle = pattern;
+        maskCtx.fillRect(0, 0, width, height * 0.8);
 
-        // Aggiunge pensiero
+        // Torna alla modalità normale
+        maskCtx.globalCompositeOperation = 'source-over';
+
+        // 4. Disegna sul canvas principale
+        ctx.drawImage(bagImg, 0, 0, width, height * 0.8); // Borsa originale
+        ctx.drawImage(maskCanvas, 0, 0); // Texture ritagliata
+
         drawThoughtText(ctx, bagImg, width, height);
         saveCanvas(canvas);
       };
     } else {
-      // Nessuna texture: solo borsa + testo
+      // Solo borsa
+      ctx.drawImage(bagImg, 0, 0, width, height * 0.8);
       drawThoughtText(ctx, bagImg, width, height);
       saveCanvas(canvas);
     }
   };
 
-  // Disegna pensiero personalizzato con glow
+  // Pensiero (glow e posizione)
   function drawThoughtText(ctx, bagImg, width, height) {
     const thoughtStyle = window.getComputedStyle(thoughtText);
     ctx.fillStyle = thoughtStyle.color || 'white';
@@ -419,7 +428,6 @@ function downloadBag() {
     ctx.shadowBlur = 0;
   }
 
-  // Salva immagine
   function saveCanvas(canvas) {
     const dataURL = canvas.toDataURL('image/png');
     const link = document.createElement('a');
