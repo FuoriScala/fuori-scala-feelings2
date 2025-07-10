@@ -80,9 +80,6 @@
       margin-bottom: 10px;
       opacity: 0;
       transition: opacity 0.5s ease-in-out;
-      text-align: center;
-      width: 360px;
-      max-width: 90vw;
     }
 
     .fade-in {
@@ -123,7 +120,6 @@
       transition: top 0.15s linear, left 0.15s linear;
       cursor: move;
       user-select: text;
-      white-space: pre-wrap;
     }
 
     .controls-wrapper {
@@ -199,6 +195,22 @@
       cursor: pointer;
       font-size: 1rem;
     }
+
+    /* Info box fixed bottom left with color per emotion */
+    #infoBox {
+      position: fixed;
+      bottom: 40px;
+      left: 40px;
+      max-width: 260px;
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.5;
+      color: #c2185b;
+      white-space: pre-line;
+      user-select: none;
+      pointer-events: none;
+      font-family: 'Arial Rounded MT Bold', sans-serif;
+    }
   </style>
 </head>
 <body>
@@ -272,30 +284,33 @@
     <button onclick="downloadBag()">💾 Save Your Bag</button>
   </div>
 
+  <div id="infoBox"></div>
+
   <script>
+    // Colori per emozioni per infoBox
+    const emotionColors = {
+      calm: '#4a90e2',
+      joy: '#fbc02d',
+      sadness: '#3f51b5',
+      anger: '#e53935',
+      fear: '#673ab7',
+      love: '#d81b60',
+      default: '#c2185b'
+    };
+
     const params = new URLSearchParams(window.location.search);
-    const emotion = params.get('emotion') || 'calm';
+    const emotion = params.get('emotion')?.toLowerCase() || 'calm';
     const thought = decodeURIComponent(params.get('thought') || 'Your thought here');
 
     const bagImage = document.getElementById('bagImage');
     const textureOverlay = document.getElementById('textureOverlay');
     const thoughtText = document.getElementById('thoughtText');
     const bagName = document.getElementById('bagName');
+    const infoBox = document.getElementById('infoBox');
 
     const bagImages = Array.from({ length: 4 }, (_, i) => `images/${emotion}/bag_${emotion}_${i + 1}.png`);
     const bagNames = ['Tote', 'Pochette', 'Duffel', 'Baguette'];
     let currentIndex = 0;
-
-    // Colors for emotions (adjust as needed)
-    const emotionColors = {
-      joy: '#ff5722',
-      sadness: '#2196f3',
-      anger: '#d32f2f',
-      fear: '#673ab7',
-      calm: '#4caf50',
-      love: '#e91e63',
-      default: '#c2185b'
-    };
 
     function updateBagImage() {
       const newSrc = bagImages[currentIndex];
@@ -308,6 +323,7 @@
         textureOverlay.style.maskImage = `url(${newSrc})`;
         textureOverlay.style.webkitMaskImage = `url(${newSrc})`;
       }
+      updateInfoBox();
     }
 
     function nextImage() {
@@ -321,22 +337,20 @@
     }
 
     function moveText(dx, dy) {
-      // Get current left and top relative to #bagContainer
+      const rect = thoughtText.getBoundingClientRect();
       const parentRect = bagImage.getBoundingClientRect();
-      const thoughtRect = thoughtText.getBoundingClientRect();
+      const currentLeft = rect.left - parentRect.left;
+      const currentTop = rect.top - parentRect.top;
+      let newLeft = currentLeft + dx;
+      let newTop = currentTop + dy;
+      // Limita il movimento dentro il contenitore bagImage
+      if(newLeft < 0) newLeft = 0;
+      if(newTop < 0) newTop = 0;
+      if(newLeft + thoughtText.offsetWidth > parentRect.width) newLeft = parentRect.width - thoughtText.offsetWidth;
+      if(newTop + thoughtText.offsetHeight > parentRect.height) newTop = parentRect.height - thoughtText.offsetHeight;
 
-      const offsetX = thoughtRect.left - parentRect.left;
-      const offsetY = thoughtRect.top - parentRect.top;
-
-      const newLeft = offsetX + dx;
-      const newTop = offsetY + dy;
-
-      // Limit movement inside bag container area (optional)
-      const maxLeft = parentRect.width - thoughtText.offsetWidth;
-      const maxTop = parentRect.height - thoughtText.offsetHeight;
-
-      thoughtText.style.left = Math.min(Math.max(newLeft, 0), maxLeft) + 'px';
-      thoughtText.style.top = Math.min(Math.max(newTop, 0), maxTop) + 'px';
+      thoughtText.style.left = newLeft + 'px';
+      thoughtText.style.top = newTop + 'px';
     }
 
     function changeFont(font) {
@@ -377,16 +391,15 @@
       window.open(url, "_blank");
     }
 
-    // Helper to wrap text for canvas
     function wrapText(ctx, text, maxWidth) {
       const words = text.split(' ');
-      let lines = [];
+      const lines = [];
       let currentLine = words[0];
 
-      for (let i = 1; i < words.length; i++) {
-        let word = words[i];
-        let width = ctx.measureText(currentLine + ' ' + word).width;
-        if (width < maxWidth) {
+      for(let i = 1; i < words.length; i++) {
+        const word = words[i];
+        const width = ctx.measureText(currentLine + ' ' + word).width;
+        if(width < maxWidth) {
           currentLine += ' ' + word;
         } else {
           lines.push(currentLine);
@@ -398,8 +411,9 @@
     }
 
     function downloadBag() {
-      const width = 600;  // canvas width for bag + info area
-      const height = 580; // 480 bag height + 100 info area
+      const width = 360;
+      const height = 580;
+
       const canvas = document.createElement('canvas');
       canvas.width = width;
       canvas.height = height;
@@ -413,10 +427,8 @@
       bagImg.src = bagImages[currentIndex];
 
       bagImg.onload = () => {
-        // Draw bag on left top corner (360x480)
-        ctx.drawImage(bagImg, 0, 0, 360, 480);
+        ctx.drawImage(bagImg, 0, 0, width, 480);
 
-        // Draw texture if active
         if (textureOverlay.style.display === 'block') {
           const textureImg = new Image();
           textureImg.crossOrigin = "anonymous";
@@ -427,7 +439,7 @@
           textureImg.onload = () => {
             ctx.save();
             ctx.globalCompositeOperation = 'source-in';
-            ctx.drawImage(textureImg, 0, 0, 360, 480);
+            ctx.drawImage(textureImg, 0, 0, width, 480);
             ctx.restore();
 
             drawTextAndInfo();
@@ -436,19 +448,18 @@
           textureImg.onerror = () => {
             drawTextAndInfo();
           };
+
         } else {
           drawTextAndInfo();
         }
 
         function drawTextAndInfo() {
-          // Calculate relative position of thought text inside bag container
           const parentRect = bagImage.getBoundingClientRect();
           const thoughtRect = thoughtText.getBoundingClientRect();
 
           const leftRel = thoughtRect.left - parentRect.left;
           const topRel = thoughtRect.top - parentRect.top;
 
-          // Draw glowing thought text multiline
           ctx.font = `${parseInt(window.getComputedStyle(thoughtText).fontSize)}px ${window.getComputedStyle(thoughtText).fontFamily}`;
           ctx.textBaseline = 'top';
 
@@ -456,7 +467,7 @@
           ctx.shadowBlur = 8;
           ctx.fillStyle = 'white';
 
-          const maxTextWidth = 290;
+          const maxTextWidth = width - 40;
           const lines = wrapText(ctx, thoughtText.textContent.trim(), maxTextWidth);
 
           let y = topRel;
@@ -467,7 +478,6 @@
 
           ctx.shadowColor = 'transparent';
 
-          // Draw info box below bag on left (360x100)
           const boxX = 0;
           const boxY = 480 + 10;
           const baseColor = emotionColors[emotion.toLowerCase()] || emotionColors.default;
@@ -485,7 +495,7 @@
           ctx.fillText(`Bag: ${bagNames[currentIndex]}`, boxX + 10, infoY);
           infoY += lineHeight + 4;
 
-          const infoMaxWidth = 340;
+          const infoMaxWidth = width - 20;
           const thoughtLines = wrapText(ctx, `"${thoughtText.textContent.trim()}"`, infoMaxWidth);
 
           for (const line of thoughtLines) {
@@ -493,7 +503,6 @@
             infoY += lineHeight;
           }
 
-          // Save canvas as image
           const link = document.createElement('a');
           link.download = `MoodyBag_${bagNames[currentIndex]}.png`;
           link.href = canvas.toDataURL('image/png');
@@ -506,15 +515,22 @@
       };
     }
 
-    // Initialize page
-    window.onload = () => {
-      updateBagImage();
-      thoughtText.textContent = thought;
-      thoughtText.style.left = '10%';
-      thoughtText.style.top = '60%';
-      thoughtText.style.fontFamily = "'Arial Rounded MT Bold', sans-serif";
-      thoughtText.style.fontSize = '16px';
-    };
+    function updateInfoBox() {
+      const color = emotionColors[emotion.toLowerCase()] || emotionColors.default;
+      infoBox.style.color = color;
+
+      // Mostra info come mini box fisso in basso a sx, con punti a capo e colore emozione
+      const infoText = 
+        `Emotion:\n${emotion.charAt(0).toUpperCase() + emotion.slice(1)}\n\n` +
+        `Bag:\n${bagNames[currentIndex]}\n\n` +
+        `Thought:\n"${thoughtText.textContent.trim()}"`;
+      infoBox.textContent = infoText;
+    }
+
+    // Inizializza tutto
+    updateBagImage();
+    thoughtText.textContent = thought;
+    updateInfoBox();
   </script>
 </body>
 </html>
