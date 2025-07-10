@@ -418,9 +418,11 @@ function downloadBag() {
 };
 }
 
-    // Initial
-    updateBagImage();
-    thoughtText.textContent = thought;
+window.onload = () => {
+  console.log('Page loaded');
+  updateBagImage();
+  thoughtText.textContent = thought;
+  console.log('Bag image src:', bagImage.src);
   </script>
 </body>
 </html>
