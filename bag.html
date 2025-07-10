@@ -377,34 +377,45 @@ function downloadBag() {
 
       textureImg.onload = () => {
         ctx.save();
-        // usa la borsa come clip (riutilizzo la stessa immagine come maschera)
         ctx.globalCompositeOperation = 'source-in';
         ctx.drawImage(textureImg, 0, 0, width, height * 0.8);
         ctx.restore();
 
-        // 4. Testo sotto borsa, centrato e piccolo
-        ctx.fillStyle = '#c2185b';
-        ctx.font = '16px cursive';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
+        // Disegna il testo pensiero sopra la borsa (come posizionato dall’utente)
+        drawThoughtTextOnCanvas(ctx);
 
-        // 5. Scarica immagine
-        const dataURL = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        link.href = dataURL;
-        link.download = Moody_Bag_${bagNames[currentIndex]}.png;
-        link.click();
+        saveCanvasImage(canvas);
       };
     } else {
-      // se non c’è texture, disegno solo borsa e testo
-
-      const dataURL = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = dataURL;
-      link.download = Moody_Bag_${bagNames[currentIndex]}.png;
-      link.click();
+      // Nessuna texture, disegna solo borsa + testo
+      drawThoughtTextOnCanvas(ctx);
+      saveCanvasImage(canvas);
     }
   };
+
+  function drawThoughtTextOnCanvas(ctx) {
+    const thoughtStyle = window.getComputedStyle(thoughtText);
+    ctx.fillStyle = thoughtStyle.color || 'white';
+    ctx.font = `${thoughtStyle.fontSize} ${thoughtStyle.fontFamily}`;
+    ctx.textBaseline = 'top';
+
+    const bagRect = bagImage.getBoundingClientRect();
+    const thoughtRect = thoughtText.getBoundingClientRect();
+
+    const x = thoughtRect.left - bagRect.left;
+    const y = thoughtRect.top - bagRect.top;
+
+    ctx.fillText(thoughtText.textContent.trim(), x, y);
+  }
+
+  function saveCanvasImage(canvas) {
+    const dataURL = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = dataURL;
+    link.download = `Moody_Bag_${bagNames[currentIndex]}.png`;
+    link.click();
+  }
+};
 }
 
     // Initial
