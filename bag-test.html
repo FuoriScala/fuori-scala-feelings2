@@ -7,7 +7,7 @@
   <style>
     html, body {
       margin: 0;
-      padding: 0 0 150px;
+      padding: 0 0 200px;
       min-height: 100vh;
       font-family: 'Arial Rounded MT Bold', sans-serif;
       background: linear-gradient(-45deg, #fce4ec, #f8bbd0, #fce4ec, #f8bbd0);
@@ -71,11 +71,7 @@
       background-position: center;
       background-size: 80px 80px;
       mask-size: contain;
-      mask-repeat: no-repeat;
-      mask-position: center;
       -webkit-mask-size: contain;
-      -webkit-mask-repeat: no-repeat;
-      -webkit-mask-position: center;
     }
 
     #bagName {
@@ -115,12 +111,12 @@
       background: rgba(0, 0, 0, 0.4);
       padding: 8px 10px;
       border-radius: 8px;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+      text-shadow: 0 0 8px rgba(255,255,255,0.7);
       max-width: 80%;
       top: 60%;
       left: 10%;
       z-index: 5;
-      transition: all 0.2s ease; /* smooth movement */
+      transition: top 0.15s linear, left 0.15s linear;
     }
 
     .controls-wrapper {
@@ -147,20 +143,12 @@
       cursor: pointer;
     }
 
-    .font-select {
-      margin-top: 10px;
-    }
-
-    .font-size-slider {
+    .font-select, .font-size-slider {
       margin-top: 10px;
       text-align: center;
     }
 
-    .font-size-slider input[type=range] {
-      width: 150px;
-    }
-
-    select {
+    select, input[type=range] {
       padding: 6px;
       border-radius: 6px;
       border: 1px solid #999;
@@ -187,6 +175,23 @@
     .texture-picker button:hover {
       background: #ddd;
     }
+
+    .download-share {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 40px;
+    }
+
+    .download-share button {
+      padding: 10px 20px;
+      background-color: #c2185b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -194,7 +199,7 @@
   <div class="section-title">Choose your moody bag</div>
 
   <div id="bagContainer">
-    <div class="bag-stack">
+    <div class="bag-stack" id="captureArea">
       <img id="bagImage" src="" alt="Moody Bag" />
       <div id="textureOverlay"></div>
       <div id="thoughtText" contenteditable="true"></div>
@@ -255,6 +260,12 @@
     <button onclick="removeTexture()">❌ Remove</button>
   </div>
 
+  <div class="download-share">
+    <button onclick="shareOnWhatsApp()">📲 Share on WhatsApp</button>
+    <button onclick="downloadBag()">💾 Save Your Bag</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
     const params = new URLSearchParams(window.location.search);
     const emotion = params.get('emotion') || 'calm';
@@ -293,20 +304,12 @@
     }
 
     function moveText(dx, dy) {
-      const bagRect = document.getElementById('bagContainer').getBoundingClientRect();
-      const textRect = thoughtText.getBoundingClientRect();
-
-      if (!thoughtText.style.left || !thoughtText.style.top) {
-        const relativeLeft = textRect.left - bagRect.left;
-        const relativeTop = textRect.top - bagRect.top;
-        thoughtText.style.left = relativeLeft + "px";
-        thoughtText.style.top = relativeTop + "px";
-      }
-
-      const currentLeft = parseInt(thoughtText.style.left);
-      const currentTop = parseInt(thoughtText.style.top);
-      thoughtText.style.left = (currentLeft + dx) + "px";
-      thoughtText.style.top = (currentTop + dy) + "px";
+      const rect = thoughtText.getBoundingClientRect();
+      const parentRect = bagImage.getBoundingClientRect();
+      const currentLeft = rect.left - parentRect.left;
+      const currentTop = rect.top - parentRect.top;
+      thoughtText.style.left = (currentLeft + dx) + 'px';
+      thoughtText.style.top = (currentTop + dy) + 'px';
     }
 
     function changeFont(font) {
@@ -341,7 +344,25 @@
       textureOverlay.style.webkitMaskImage = '';
     }
 
-    // Initial load
+    function shareOnWhatsApp() {
+      const text = `Check out my Moody Bag!\n\nEmotion: ${emotion}\nBag: ${bagNames[currentIndex]}\nThought: "${thoughtText.textContent.trim()}"`;
+      const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+      window.open(url, "_blank");
+    }
+
+    function downloadBag() {
+      const area = document.getElementById("captureArea");
+      html2canvas(area).then(canvas => {
+        const link = document.createElement("a");
+        const name = bagNames[currentIndex];
+        const blob = canvas.toDataURL();
+        link.download = `Moody_Bag_${name}.png`;
+        link.href = blob;
+        link.click();
+      });
+    }
+
+    // Initial
     updateBagImage();
     thoughtText.textContent = thought;
   </script>
