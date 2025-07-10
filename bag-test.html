@@ -6,7 +6,8 @@
   <title>Your Moody Bag</title>
   <style>
     html, body {
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0 0 150px; /* padding-bottom to show all */
       min-height: 100vh;
       font-family: 'Arial Rounded MT Bold', sans-serif;
       background: linear-gradient(-45deg, #fce4ec, #f8bbd0, #fce4ec, #f8bbd0);
@@ -108,7 +109,7 @@
 
     #thoughtText {
       position: absolute;
-      font-size: 1rem;
+      font-size: 16px;
       font-weight: bold;
       color: white;
       background: rgba(0, 0, 0, 0.4);
@@ -119,8 +120,6 @@
       top: 60%;
       left: 10%;
       z-index: 5;
-      resize: both;
-      overflow: auto;
     }
 
     .controls-wrapper {
@@ -151,6 +150,15 @@
       margin-top: 10px;
     }
 
+    .font-size-slider {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .font-size-slider input[type=range] {
+      width: 150px;
+    }
+
     select {
       padding: 6px;
       border-radius: 6px;
@@ -164,7 +172,6 @@
       gap: 10px;
       margin: 40px auto;
       flex-wrap: wrap;
-      padding-bottom: 60px;
     }
 
     .texture-picker button {
@@ -221,6 +228,11 @@
         <option value="Comic Sans MS, cursive">Comic</option>
         <option value="Verdana, sans-serif">Verdana</option>
       </select>
+    </div>
+
+    <div class="font-size-slider">
+      <label>Font size: <span id="fontSizeValue">16</span>px</label><br>
+      <input type="range" id="fontSlider" min="10" max="40" value="16" oninput="changeFontSize(this.value)">
     </div>
   </div>
 
@@ -290,6 +302,11 @@
       thoughtText.style.fontFamily = font;
     }
 
+    function changeFontSize(size) {
+      thoughtText.style.fontSize = size + "px";
+      document.getElementById("fontSizeValue").textContent = size;
+    }
+
     function setTexture(name) {
       const textureURL = `images/effects/${name}.png`;
       const maskURL = bagImage.src;
@@ -300,8 +317,7 @@
       let size = '80px 80px';
       if (name === 'dark-mosaic') size = '60px 60px';
       if (name === 'starring') size = '70px 70px';
-      if (name === 'cartographer') size = '300px 300px';
-      if (name === 'skulls') size = '300px 300px';
+      if (name === 'cartographer' || name === 'skulls') size = '300px 300px';
       if (name === 'argyle') size = '65px 65px';
       if (name === 'escheresque-dark') size = '30px 30px';
       textureOverlay.style.backgroundSize = size;
@@ -314,7 +330,7 @@
       textureOverlay.style.webkitMaskImage = '';
     }
 
-    // Initial setup
+    // Initial load
     updateBagImage();
     thoughtText.textContent = thought;
   </script>
