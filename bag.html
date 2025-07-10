@@ -351,68 +351,55 @@
       window.open(url, "_blank");
     }
 
-   function downloadBag() {
-  const canvas = document.createElement('canvas');
-  const width = 360;
-  const height = 480;
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+  function downloadBag() {
+    const captureArea = document.getElementById('captureArea');
+    const clone = captureArea.cloneNode(true);
 
-  // 1. Sfondo bianco
-  ctx.fillStyle = 'white';
-  ctx.fillRect(0, 0, width, height);
+    // Rendi il pensiero non modificabile
+    const text = clone.querySelector('#thoughtText');
+    text.contentEditable = false;
 
-  // 2. Carico immagine borsa
-  const bagImg = new Image();
-  bagImg.src = bagImages[currentIndex];
-  bagImg.onload = () => {
-    // disegna borsa grande al centro
-    ctx.drawImage(bagImg, 0, 0, width, height * 0.8);
+    // Crea un wrapper invisibile fuori dallo schermo
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'fixed';
+    wrapper.style.left = '-9999px';
+    wrapper.style.top = '0';
+    wrapper.appendChild(clone);
+    document.body.appendChild(wrapper);
 
-    // 3. Maschera texture solo dentro la borsa
-    if (textureOverlay.style.display === 'block') {
-      const textureImg = new Image();
-      textureImg.src = textureOverlay.style.backgroundImage.slice(5, -2); // togli url("...")
+    html2canvas(clone, {
+      backgroundColor: "#ffffff",
+      scale: 2,
+      useCORS: true
+    }).then(canvas => {
+      // Crea canvas finale centrato
+      const finalCanvas = document.createElement('canvas');
+      finalCanvas.width = 360;
+      finalCanvas.height = 480;
+      const ctx = finalCanvas.getContext('2d');
 
-      textureImg.onload = () => {
-        ctx.save();
-        // usa la borsa come clip (riutilizzo la stessa immagine come maschera)
-        ctx.globalCompositeOperation = 'source-in';
-        ctx.drawImage(textureImg, 0, 0, width, height * 0.8);
-        ctx.restore();
+      // Sfondo bianco
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
 
-        // 4. Testo sotto borsa, centrato e piccolo
-        ctx.fillStyle = '#c2185b';
-        ctx.font = '16px cursive';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
+      // Calcola dimensioni per centrare verticalmente
+      const scale = 360 / canvas.width;
+      const drawHeight = canvas.height * scale;
+      const offsetY = (finalCanvas.height - drawHeight) / 2;
+      ctx.drawImage(canvas, 0, offsetY, 360, drawHeight);
 
-        // 5. Scarica immagine
-        const dataURL = canvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        link.href = dataURL;
-        link.download = `Moody_Bag_${bagNames[currentIndex]}.png`;
-        link.click();
-      };
-    } else {
-      // se non c’è texture, disegno solo borsa e testo
-      ctx.fillStyle = '#c2185b';
-      ctx.font = '16px cursive';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'top';
-
-      const infoText = `Emotion: ${emotion}   Bag: ${bagNames[currentIndex]}   Thought: "${thoughtText.textContent.trim()}"`;
-      ctx.fillText(infoText, width / 2, height * 0.82);
-
-      const dataURL = canvas.toDataURL('image/png');
+      // Avvia download
+      const dataURL = finalCanvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.href = dataURL;
       link.download = `Moody_Bag_${bagNames[currentIndex]}.png`;
       link.click();
-    }
-  };
-}
+
+      document.body.removeChild(wrapper);
+    });
+  }
 
     // Initial
     updateBagImage();
