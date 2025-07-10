@@ -388,9 +388,6 @@
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
 
-        const infoText = `Emotion: ${emotion}   Bag: ${bagNames[currentIndex]}   Thought: "${thoughtText.textContent.trim()}"`;
-        ctx.fillText(infoText, width / 2, height * 0.82);
-
         // 5. Scarica immagine
         const dataURL = canvas.toDataURL('image/png');
         const link = document.createElement('a');
