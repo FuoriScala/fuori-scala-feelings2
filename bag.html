@@ -268,9 +268,23 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
-   const params = new URLSearchParams(window.location.search);
-const emotion = (params.get('emotion') || 'calm').toLowerCase();
-const thought = decodeURIComponent(params.get('thought') || 'Your thought here');
+    window.onload = () => {
+    const params = new URLSearchParams(window.location.search);
+    const emotion = (params.get('emotion') || 'calm').toLowerCase();
+    const thought = decodeURIComponent(params.get('thought') || 'Your thought here');
+
+    // Set pensiero nella textarea
+    const thoughtText = document.getElementById("thoughtText");
+    if (thoughtText) {
+      thoughtText.textContent = thought;
+    }
+
+    updateBagImage(); // aggiorna immagine all'avvio
+  };
+
+  const params = new URLSearchParams(window.location.search);
+  const emotion = (params.get('emotion') || 'calm').toLowerCase();
+  const thought = decodeURIComponent(params.get('thought') || 'Your thought here');
 
     const bagImage = document.getElementById('bagImage');
     const textureOverlay = document.getElementById('textureOverlay');
