@@ -401,9 +401,21 @@ function downloadBag() {
         maskCtx.globalCompositeOperation = 'source-in';
 
         // 3. Applica texture ripetuta come pattern
-        const pattern = maskCtx.createPattern(textureImg, 'repeat');
-        maskCtx.fillStyle = pattern;
-        maskCtx.fillRect(0, 0, width, height * 0.8);
+        const bgSize = getComputedStyle(textureOverlay).backgroundSize; // es. "80px 80px"
+const [bgWidthStr, bgHeightStr] = bgSize.split(" ");
+const bgWidth = parseInt(bgWidthStr);
+const bgHeight = parseInt(bgHeightStr);
+
+// Crea pattern canvas con le dimensioni corrette
+const patternCanvas = document.createElement('canvas');
+patternCanvas.width = bgWidth;
+patternCanvas.height = bgHeight;
+const patternCtx = patternCanvas.getContext('2d');
+patternCtx.drawImage(textureImg, 0, 0, bgWidth, bgHeight);
+
+const pattern = maskCtx.createPattern(patternCanvas, 'repeat');
+maskCtx.fillStyle = pattern;
+maskCtx.fillRect(0, 0, width, height * 0.8);
 
         // Torna alla modalità normale
         maskCtx.globalCompositeOperation = 'source-over';
