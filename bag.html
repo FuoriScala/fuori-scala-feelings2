@@ -430,11 +430,10 @@ function downloadBag() {
     ctx.font = `${thoughtStyle.fontSize} ${thoughtStyle.fontFamily}`;
     ctx.textBaseline = 'top';
 
-    const bagRect = bagImage.getBoundingClientRect();
-    const thoughtRect = thoughtText.getBoundingClientRect();
-
-    const x = thoughtRect.left - bagRect.left;
-    const y = thoughtRect.top - bagRect.top;
+    const x =
+parseFloat(thoughtText.style.left) || 0;
+const y =
+parseFloat (thoughtText.style.top) || 0;
 
     ctx.shadowColor = 'rgba(255,255,255,0.8)';
     ctx.shadowBlur = 8;
