@@ -1,4 +1,4 @@
-// Replace with your actual SheetDB API endpoint (keep the quotes)
+// Replace with your actual SheetDB API endpoint
 const SHEETDB_API_URL = 'https://sheetdb.io/api/v1/m9769bwpvfaga';
 
 const bubble = document.getElementById('emotionBubble');
@@ -76,6 +76,7 @@ function displayData(data) {
   const now = new Date();
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
   const formattedDate = now.toLocaleDateString('en-US', options);
+
   document.getElementById('date').textContent = formattedDate;
 }
 
@@ -134,35 +135,48 @@ form.addEventListener('submit', (e) => {
   };
 
   saveData(payload);
-
   displayData(currentData);
 
-  // Show download button
+  // Mostra il bottone rosso
   downloadBtn.style.display = 'block';
-});
 
-// ✅ AGGIUNTA: Bottone verde mostrato subito all'avvio
-const proceedBtn = document.createElement('button');
-proceedBtn.id = 'proceedBtn';
-proceedBtn.textContent = 'Bring your mood to life';
-proceedBtn.style.marginTop = '10px';
-proceedBtn.style.padding = '12px 24px';
-proceedBtn.style.fontSize = '1rem';
-proceedBtn.style.backgroundColor = '#25D366'; // Verde tipo WhatsApp
-proceedBtn.style.color = 'white';
-proceedBtn.style.border = 'none';
-proceedBtn.style.borderRadius = '8px';
-proceedBtn.style.cursor = 'pointer';
-downloadBtn.insertAdjacentElement('afterend', proceedBtn);
+  // Se il wrapper non esiste, crealo
+  if (!document.getElementById('buttonWrapper')) {
+    const proceedBtn = document.createElement('button');
+    proceedBtn.id = 'proceedBtn';
+    proceedBtn.textContent = 'Bring your mood to life';
+    proceedBtn.style.padding = '12px 24px';
+    proceedBtn.style.fontSize = '1rem';
+    proceedBtn.style.backgroundColor = '#25D366';
+    proceedBtn.style.color = 'white';
+    proceedBtn.style.border = 'none';
+    proceedBtn.style.borderRadius = '8px';
+    proceedBtn.style.cursor = 'pointer';
 
-proceedBtn.addEventListener('click', () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const emotion = urlParams.get('emotion') || 'Calm';
-  const color = colorSpan.textContent || '#3CB371';
-  const thought = form.thought.value || '';
+    // Contenitore centrato per entrambi i pulsanti
+    const buttonWrapper = document.createElement('div');
+    buttonWrapper.id = 'buttonWrapper';
+    buttonWrapper.style.display = 'flex';
+    buttonWrapper.style.justifyContent = 'center';
+    buttonWrapper.style.gap = '20px';
+    buttonWrapper.style.marginTop = '20px';
 
-  const bagUrl = `bag.html?emotion=${encodeURIComponent(emotion)}&color=${encodeURIComponent(color)}&thought=${encodeURIComponent(thought)}`;
-  window.location.href = bagUrl;
+    // Sposta i pulsanti nel wrapper
+    downloadBtn.parentElement.appendChild(buttonWrapper);
+    buttonWrapper.appendChild(downloadBtn);
+    buttonWrapper.appendChild(proceedBtn);
+
+    // Azione del bottone verde
+    proceedBtn.addEventListener('click', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const emotion = urlParams.get('emotion') || 'Calm';
+      const color = colorSpan.textContent || '#3CB371';
+      const thought = form.thought.value || '';
+
+      const bagUrl = `bag.html?emotion=${encodeURIComponent(emotion)}&color=${encodeURIComponent(color)}&thought=${encodeURIComponent(thought)}`;
+      window.location.href = bagUrl;
+    });
+  }
 });
 
 // Download snapshot
